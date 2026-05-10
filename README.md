@@ -18,3 +18,9 @@ This version intentionally excludes grass, genetics, individual traits, and floc
 npm install
 npm run dev
 ```
+
+## Deploy
+
+Every push to `main` builds the app and deploys `dist/` to GitHub Pages using GitHub Actions.
+
+The Vite base path is configured as `/foo/` for the `tamiroh/foo` repository.
