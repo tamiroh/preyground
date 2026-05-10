@@ -1,10 +1,13 @@
-import type { SimulationParams } from "./simulation";
-
-type SimulationStatsView = {
+type WorldStatsView = {
   elapsed: number;
   preyCount: number;
   predatorCount: number;
   eatenCount: number;
+};
+
+type WorldRuleParamsView = {
+  preyBirthRate: number;
+  predatorHunger: number;
 };
 
 type UiElements = {
@@ -36,7 +39,7 @@ export class SimulationUi {
     return Number(this.elements.speed?.value ?? 2);
   }
 
-  public getParams(): SimulationParams {
+  public getParams(): WorldRuleParamsView {
     return {
       preyBirthRate: Number(this.elements.preyBirth?.value ?? 0.025),
       predatorHunger: Number(this.elements.predatorHunger?.value ?? 22),
@@ -49,7 +52,7 @@ export class SimulationUi {
     }
   }
 
-  public updateStats(stats: SimulationStatsView): void {
+  public updateStats(stats: WorldStatsView): void {
     if (this.elements.time) this.elements.time.textContent = stats.elapsed.toFixed(0);
     if (this.elements.preyCount) this.elements.preyCount.textContent = String(stats.preyCount);
     if (this.elements.predatorCount) this.elements.predatorCount.textContent = String(stats.predatorCount);

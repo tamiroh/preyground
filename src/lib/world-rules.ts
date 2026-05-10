@@ -5,11 +5,15 @@ import {
 } from "./config";
 import type { Predator, Prey } from "./animal";
 import { randomSigned } from "./math";
-import type { SimulationParams } from "./simulation";
 import type { World } from "./world";
 
+export type WorldRuleParams = {
+  preyBirthRate: number;
+  predatorHunger: number;
+};
+
 export interface WorldRule {
-  update(world: World, dt: number, params: SimulationParams): void;
+  update(world: World, dt: number, params: WorldRuleParams): void;
 }
 
 export function createDefaultRules(): WorldRule[] {
@@ -64,7 +68,7 @@ class PredationRule implements WorldRule {
 }
 
 class PredatorStarvationRule implements WorldRule {
-  public update(world: World, dt: number, params: SimulationParams): void {
+  public update(world: World, dt: number, params: WorldRuleParams): void {
     for (const predator of world.predators) {
       predator.energy -= dt;
       if (predator.energy <= 0 || predator.age > params.predatorHunger * 2.4) {
@@ -75,7 +79,7 @@ class PredatorStarvationRule implements WorldRule {
 }
 
 class PreyReproductionRule implements WorldRule {
-  public update(world: World, dt: number, params: SimulationParams): void {
+  public update(world: World, dt: number, params: WorldRuleParams): void {
     for (const prey of world.prey) {
       if (world.totalPreyAfterBirths >= MAX_PREY) {
         return;
@@ -88,7 +92,7 @@ class PreyReproductionRule implements WorldRule {
 }
 
 class PredatorReproductionRule implements WorldRule {
-  public update(world: World, _dt: number, params: SimulationParams): void {
+  public update(world: World, _dt: number, params: WorldRuleParams): void {
     for (const predator of world.predators) {
       if (world.totalPredatorsAfterBirths >= MAX_PREDATORS) {
         return;

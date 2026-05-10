@@ -7,7 +7,18 @@ import {
   Predator,
   Prey,
 } from "./animal";
-import type { SimulationStats } from "./simulation";
+import type {
+  WorldRule,
+  WorldRuleParams,
+} from "./world-rules";
+import { createDefaultRules } from "./world-rules";
+
+export type WorldStats = {
+  elapsed: number;
+  preyCount: number;
+  predatorCount: number;
+  eatenCount: number;
+};
 
 type PendingWorldChanges = {
   preyToSpawn: Prey[];
@@ -28,6 +39,7 @@ export class World {
   public constructor(
     public width: number,
     public height: number,
+    private readonly rules: readonly WorldRule[] = createDefaultRules(),
   ) {}
 
   public resize(width: number, height: number): void {
@@ -57,11 +69,19 @@ export class World {
     this.pending = createEmptyPendingChanges();
   }
 
+  public step(dt: number, params: WorldRuleParams): void {
+    this.beginStep();
+    for (const rule of this.rules) {
+      rule.update(this, dt, params);
+    }
+    this.elapsed += dt;
+  }
+
   public getAnimals(): readonly Animal[] {
     return [...this.prey, ...this.predators];
   }
 
-  public getStats(): SimulationStats {
+  public getStats(): WorldStats {
     return {
       elapsed: this.elapsed,
       preyCount: this.prey.length,
