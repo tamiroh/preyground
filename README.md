@@ -1,4 +1,4 @@
-# foo
+# preyground
 
 A minimal predator-prey simulation without physics.
 
@@ -23,4 +23,4 @@ npm run dev
 
 Every push to `main` builds the app and deploys `dist/` to GitHub Pages using GitHub Actions.
 
-The Vite base path is configured as `/foo/` for the `tamiroh/foo` repository.
+The Vite base path is configured as `/preyground/` for the `tamiroh/preyground` repository.
