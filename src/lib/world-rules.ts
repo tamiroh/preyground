@@ -1,0 +1,108 @@
+import {
+  EAT_DISTANCE,
+  MAX_PREDATORS,
+  MAX_PREY,
+} from "./config";
+import type { Predator, Prey } from "./animal";
+import { randomSigned } from "./math";
+import type { SimulationParams } from "./simulation";
+import type { World } from "./world";
+
+export interface WorldRule {
+  update(world: World, dt: number, params: SimulationParams): void;
+}
+
+export function createDefaultRules(): WorldRule[] {
+  return [
+    new MovementRule(),
+    new PredationRule(),
+    new PredatorStarvationRule(),
+    new PreyReproductionRule(),
+    new PredatorReproductionRule(),
+    new CleanupRule(),
+  ];
+}
+
+class MovementRule implements WorldRule {
+  public update(world: World, dt: number): void {
+    for (const prey of world.prey) {
+      prey.age += dt;
+      prey.move(world.predators, dt, world.width, world.height);
+    }
+
+    for (const predator of world.predators) {
+      predator.age += dt;
+      predator.move(world.livingPrey, dt, world.width, world.height);
+    }
+  }
+}
+
+class PredationRule implements WorldRule {
+  public update(world: World): void {
+    for (const predator of world.predators) {
+      const target = this.nearestEdiblePrey(predator, world.livingPrey, world.width, world.height);
+      if (target) {
+        world.killPrey(target);
+        predator.energy += 9;
+        world.eatenCount += 1;
+      }
+    }
+  }
+
+  private nearestEdiblePrey(predator: Predator, prey: readonly Prey[], width: number, height: number): Prey | null {
+    let target: Prey | null = null;
+    let targetDistance = EAT_DISTANCE;
+    for (const candidate of prey) {
+      const distance = predator.distanceTo(candidate, width, height);
+      if (distance < targetDistance) {
+        target = candidate;
+        targetDistance = distance;
+      }
+    }
+    return target;
+  }
+}
+
+class PredatorStarvationRule implements WorldRule {
+  public update(world: World, dt: number, params: SimulationParams): void {
+    for (const predator of world.predators) {
+      predator.energy -= dt;
+      if (predator.energy <= 0 || predator.age > params.predatorHunger * 2.4) {
+        world.killPredator(predator);
+      }
+    }
+  }
+}
+
+class PreyReproductionRule implements WorldRule {
+  public update(world: World, dt: number, params: SimulationParams): void {
+    for (const prey of world.prey) {
+      if (world.totalPreyAfterBirths >= MAX_PREY) {
+        return;
+      }
+      if (Math.random() < params.preyBirthRate * dt) {
+        world.spawnPrey(prey.x + randomSigned(12), prey.y + randomSigned(12));
+      }
+    }
+  }
+}
+
+class PredatorReproductionRule implements WorldRule {
+  public update(world: World, _dt: number, params: SimulationParams): void {
+    for (const predator of world.predators) {
+      if (world.totalPredatorsAfterBirths >= MAX_PREDATORS) {
+        return;
+      }
+      if (predator.energy > params.predatorHunger) {
+        predator.energy *= 0.52;
+        world.spawnPredator(predator.x + randomSigned(10), predator.y + randomSigned(10));
+      }
+    }
+  }
+}
+
+class CleanupRule implements WorldRule {
+  public update(world: World): void {
+    world.commitPendingChanges();
+  }
+}

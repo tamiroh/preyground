@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Predator Prey Lab</title>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="world" aria-label="predator prey simulation"></canvas>
+      <aside class="panel">
+        <header>
+          <p class="eyebrow">Agent Model</p>
+          <h1>Predator Prey Simulation</h1>
+        </header>
+
+        <section class="stats-grid" aria-label="simulation stats">
+          <div>
+            <span>Time</span>
+            <strong id="time">0</strong>
+          </div>
+          <div>
+            <span>Prey</span>
+            <strong id="preyCount">0</strong>
+          </div>
+          <div>
+            <span>Predators</span>
+            <strong id="predatorCount">0</strong>
+          </div>
+          <div>
+            <span>Eaten</span>
+            <strong id="eatenCount">0</strong>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="toggleRun" type="button">Pause</button>
+          <button id="reset" type="button">Reset</button>
+        </section>
+
+        <label>
+          <span>Speed</span>
+          <input id="speed" type="range" min="1" max="8" step="1" value="2" />
+        </label>
+
+        <label>
+          <span>Prey birth rate</span>
+          <input id="preyBirth" type="range" min="0" max="0.08" step="0.002" value="0.025" />
+        </label>
+
+        <label>
+          <span>Predator hunger tolerance</span>
+          <input id="predatorHunger" type="range" min="8" max="45" step="1" value="22" />
+        </label>
+      </aside>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
