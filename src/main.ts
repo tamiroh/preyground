@@ -1,5 +1,8 @@
 import { FIXED_DT } from "./lib/config";
-import { CanvasRenderer } from "./lib/renderer";
+import {
+  CanvasRenderer,
+  type ChartPoint,
+} from "./lib/renderer";
 import "./style.css";
 import { SimulationUi } from "./lib/ui";
 import { World } from "./lib/world";
@@ -19,6 +22,9 @@ const renderer = new CanvasRenderer(canvasElement, context);
 const world = new World(window.innerWidth, window.innerHeight);
 
 let running = true;
+let predatorChartVisible = false;
+let predatorHistory: ChartPoint[] = [];
+let lastRecordedTime = -1;
 
 function resize(): void {
   const width = window.innerWidth;
@@ -36,8 +42,18 @@ function tick(): void {
       world.step(FIXED_DT, params);
     }
   }
-  ui.updateStats(world.getStats());
-  renderer.render(world.getAnimals());
+  const stats = world.getStats();
+  recordPredatorHistory(stats.elapsed, stats.predatorCount);
+  ui.updateStats(stats);
+  renderer.render(world.getAnimals(), predatorChartVisible ? predatorHistory : null);
+}
+
+function recordPredatorHistory(time: number, value: number): void {
+  if (time === lastRecordedTime) {
+    return;
+  }
+  lastRecordedTime = time;
+  predatorHistory.push({ time, value });
 }
 
 ui.onToggleRun(() => {
@@ -47,6 +63,13 @@ ui.onToggleRun(() => {
 
 ui.onReset(() => {
   world.reset();
+  predatorHistory = [];
+  lastRecordedTime = -1;
+});
+
+ui.onTogglePredatorChart(() => {
+  predatorChartVisible = !predatorChartVisible;
+  ui.setPredatorChartVisible(predatorChartVisible);
 });
 
 window.addEventListener("resize", resize);
@@ -54,4 +77,5 @@ window.addEventListener("resize", resize);
 resize();
 world.reset();
 ui.setRunning(running);
+ui.setPredatorChartVisible(predatorChartVisible);
 requestAnimationFrame(tick);

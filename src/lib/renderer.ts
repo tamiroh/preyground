@@ -3,6 +3,11 @@ import {
   type Animal,
 } from "./animal";
 
+export type ChartPoint = {
+  time: number;
+  value: number;
+};
+
 export class CanvasRenderer {
   private width = 0;
   private height = 0;
@@ -23,11 +28,14 @@ export class CanvasRenderer {
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
-  public render(animals: readonly Animal[]): void {
+  public render(animals: readonly Animal[], predatorHistory: readonly ChartPoint[] | null = null): void {
     this.context.clearRect(0, 0, this.width, this.height);
     this.drawBackground();
     for (const animal of animals) {
       this.drawAnimal(animal);
+    }
+    if (predatorHistory) {
+      this.drawPredatorChart(predatorHistory);
     }
   }
 
@@ -74,5 +82,93 @@ export class CanvasRenderer {
     this.context.fill();
     this.context.stroke();
     this.context.restore();
+  }
+
+  private drawPredatorChart(history: readonly ChartPoint[]): void {
+    const chartWidth = Math.max(280, this.width - 36);
+    const chartHeight = 190;
+    const left = 18;
+    const top = Math.max(18, this.height - chartHeight - 18);
+    const padding = 34;
+    const plotWidth = chartWidth - padding * 2;
+    const plotHeight = chartHeight - padding * 1.7;
+
+    this.context.save();
+    this.context.fillStyle = "rgb(16 22 21 / 0.84)";
+    this.context.strokeStyle = "rgb(255 255 255 / 0.16)";
+    this.context.lineWidth = 1;
+    this.context.beginPath();
+    this.context.roundRect(left, top, chartWidth, chartHeight, 8);
+    this.context.fill();
+    this.context.stroke();
+
+    this.context.fillStyle = "#eef3f6";
+    this.context.font = "600 13px ui-sans-serif, system-ui";
+    this.context.fillText("Predators over time", left + 14, top + 24);
+
+    if (history.length < 2) {
+      this.context.fillStyle = "rgb(238 243 246 / 0.65)";
+      this.context.font = "12px ui-sans-serif, system-ui";
+      this.context.fillText("Collecting data...", left + 14, top + 50);
+      this.context.restore();
+      return;
+    }
+
+    const sampledHistory = this.sampleChartHistory(history, Math.max(2, Math.floor(plotWidth)));
+    const minTime = history[0].time;
+    const maxTime = history[history.length - 1].time;
+    const maxValue = Math.max(1, ...history.map((point) => point.value));
+    const plotLeft = left + padding;
+    const plotTop = top + 48;
+    const plotBottom = plotTop + plotHeight;
+
+    this.context.strokeStyle = "rgb(255 255 255 / 0.12)";
+    this.context.beginPath();
+    this.context.moveTo(plotLeft, plotTop);
+    this.context.lineTo(plotLeft, plotBottom);
+    this.context.lineTo(plotLeft + plotWidth, plotBottom);
+    this.context.stroke();
+
+    this.context.strokeStyle = "#ef767a";
+    this.context.lineWidth = 2;
+    this.context.beginPath();
+    sampledHistory.forEach((point, index) => {
+      const x = plotLeft + ((point.time - minTime) / Math.max(1, maxTime - minTime)) * plotWidth;
+      const y = plotBottom - (point.value / maxValue) * plotHeight;
+      if (index === 0) {
+        this.context.moveTo(x, y);
+      } else {
+        this.context.lineTo(x, y);
+      }
+    });
+    this.context.stroke();
+
+    const latest = history[history.length - 1];
+    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
+    this.context.font = "12px ui-sans-serif, system-ui";
+    this.context.fillText(`now ${latest.value}`, plotLeft, plotBottom + 22);
+    this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
+    this.context.restore();
+  }
+
+  private sampleChartHistory(history: readonly ChartPoint[], maxPoints: number): readonly ChartPoint[] {
+    if (history.length <= maxPoints) {
+      return history;
+    }
+
+    const sampled: ChartPoint[] = [];
+    const bucketSize = history.length / maxPoints;
+    for (let bucket = 0; bucket < maxPoints; bucket += 1) {
+      const start = Math.floor(bucket * bucketSize);
+      const end = Math.min(history.length, Math.floor((bucket + 1) * bucketSize));
+      let maxPoint = history[start];
+      for (let index = start + 1; index < end; index += 1) {
+        if (history[index].value > maxPoint.value) {
+          maxPoint = history[index];
+        }
+      }
+      sampled.push(maxPoint);
+    }
+    return sampled;
   }
 }

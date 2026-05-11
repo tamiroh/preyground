@@ -14,6 +14,7 @@ type UiElements = {
   time: HTMLElement | null;
   preyCount: HTMLElement | null;
   predatorCount: HTMLElement | null;
+  predatorStat: HTMLElement | null;
   eatenCount: HTMLElement | null;
   toggleRun: HTMLButtonElement | null;
   reset: HTMLButtonElement | null;
@@ -27,6 +28,7 @@ export class SimulationUi {
     time: document.querySelector<HTMLElement>("#time"),
     preyCount: document.querySelector<HTMLElement>("#preyCount"),
     predatorCount: document.querySelector<HTMLElement>("#predatorCount"),
+    predatorStat: document.querySelector<HTMLElement>("#predatorStat"),
     eatenCount: document.querySelector<HTMLElement>("#eatenCount"),
     toggleRun: document.querySelector<HTMLButtonElement>("#toggleRun"),
     reset: document.querySelector<HTMLButtonElement>("#reset"),
@@ -65,5 +67,20 @@ export class SimulationUi {
 
   public onReset(handler: () => void): void {
     this.elements.reset?.addEventListener("click", handler);
+  }
+
+  public onTogglePredatorChart(handler: () => void): void {
+    this.elements.predatorStat?.addEventListener("click", handler);
+    this.elements.predatorStat?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        handler();
+      }
+    });
+  }
+
+  public setPredatorChartVisible(visible: boolean): void {
+    this.elements.predatorStat?.classList.toggle("is-active", visible);
+    this.elements.predatorStat?.setAttribute("aria-pressed", String(visible));
   }
 }
