@@ -1,4 +1,3 @@
-import { FIXED_DT } from "./lib/config";
 import {
   CanvasRenderer,
   type ChartPoint,
@@ -6,6 +5,8 @@ import {
 import "./style.css";
 import { SimulationUi } from "./lib/ui";
 import { World } from "./lib/world";
+
+const FIXED_DT = 1 / 60;
 
 const canvasElement = document.querySelector<HTMLCanvasElement>("#world");
 if (!canvasElement) {

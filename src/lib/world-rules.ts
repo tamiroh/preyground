@@ -1,7 +1,8 @@
-import { EAT_DISTANCE } from "./config";
 import type { Predator, Prey } from "./animal";
 import { randomSigned } from "./math";
 import type { World } from "./world";
+
+const EAT_DISTANCE = 8;
 
 export type WorldRuleParams = {
   preyBirthRate: number;

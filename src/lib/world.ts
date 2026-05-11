@@ -1,8 +1,4 @@
 import {
-  INITIAL_PREDATORS,
-  INITIAL_PREY,
-} from "./config";
-import {
   Animal,
   Predator,
   Prey,
@@ -19,6 +15,9 @@ export type WorldStats = {
   predatorCount: number;
   eatenCount: number;
 };
+
+const INITIAL_PREY = 90;
+const INITIAL_PREDATORS = 16;
 
 type PendingWorldChanges = {
   preyToSpawn: Prey[];
