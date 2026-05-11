@@ -94,14 +94,6 @@ export class World {
     return this.prey.filter((animal) => !this.pending.preyToKill.has(animal.id));
   }
 
-  public get totalPreyAfterBirths(): number {
-    return this.prey.length + this.pending.preyToSpawn.length;
-  }
-
-  public get totalPredatorsAfterBirths(): number {
-    return this.predators.length + this.pending.predatorsToSpawn.length;
-  }
-
   public spawnPrey(x: number, y: number): void {
     this.pending.preyToSpawn.push(this.createPrey(x, y));
   }

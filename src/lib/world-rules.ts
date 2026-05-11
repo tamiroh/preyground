@@ -1,8 +1,4 @@
-import {
-  EAT_DISTANCE,
-  MAX_PREDATORS,
-  MAX_PREY,
-} from "./config";
+import { EAT_DISTANCE } from "./config";
 import type { Predator, Prey } from "./animal";
 import { randomSigned } from "./math";
 import type { World } from "./world";
@@ -81,9 +77,6 @@ class PredatorStarvationRule implements WorldRule {
 class PreyReproductionRule implements WorldRule {
   public update(world: World, dt: number, params: WorldRuleParams): void {
     for (const prey of world.prey) {
-      if (world.totalPreyAfterBirths >= MAX_PREY) {
-        return;
-      }
       if (Math.random() < params.preyBirthRate * dt) {
         world.spawnPrey(prey.x + randomSigned(12), prey.y + randomSigned(12));
       }
@@ -94,9 +87,6 @@ class PreyReproductionRule implements WorldRule {
 class PredatorReproductionRule implements WorldRule {
   public update(world: World, _dt: number, params: WorldRuleParams): void {
     for (const predator of world.predators) {
-      if (world.totalPredatorsAfterBirths >= MAX_PREDATORS) {
-        return;
-      }
       if (predator.energy > params.predatorHunger) {
         predator.energy *= 0.52;
         world.spawnPredator(predator.x + randomSigned(10), predator.y + randomSigned(10));
