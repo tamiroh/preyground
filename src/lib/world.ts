@@ -65,15 +65,12 @@ export class World {
     }
   }
 
-  public beginStep(): void {
-    this.pending = createEmptyPendingChanges();
-  }
-
   public step(dt: number, params: WorldRuleParams): void {
-    this.beginStep();
+    this.resetPendingChanges();
     for (const rule of this.rules) {
       rule.update(this, dt, params);
     }
+    this.commitPendingChanges();
     this.elapsed += dt;
   }
 
@@ -110,7 +107,11 @@ export class World {
     this.pending.predatorsToKill.add(predator.id);
   }
 
-  public commitPendingChanges(): void {
+  private resetPendingChanges(): void {
+    this.pending = createEmptyPendingChanges();
+  }
+
+  private commitPendingChanges(): void {
     this.prey = this.prey.filter((animal) => !this.pending.preyToKill.has(animal.id));
     this.predators = this.predators.filter((animal) => !this.pending.predatorsToKill.has(animal.id));
     this.prey.push(...this.pending.preyToSpawn);

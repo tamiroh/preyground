@@ -19,7 +19,6 @@ export function createDefaultRules(): WorldRule[] {
     new PredatorStarvationRule(),
     new PreyReproductionRule(),
     new PredatorReproductionRule(),
-    new CleanupRule(),
   ];
 }
 
@@ -92,11 +91,5 @@ class PredatorReproductionRule implements WorldRule {
         world.spawnPredator(predator.x + randomSigned(10), predator.y + randomSigned(10));
       }
     }
-  }
-}
-
-class CleanupRule implements WorldRule {
-  public update(world: World): void {
-    world.commitPendingChanges();
   }
 }
