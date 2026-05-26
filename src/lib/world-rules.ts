@@ -15,23 +15,32 @@ export interface WorldRule {
 
 export function createDefaultRules(): WorldRule[] {
   return [
+    new AgingRule(),
     new MovementRule(),
     new PredationRule(),
+    new PredatorEnergyDecayRule(),
     new PredatorStarvationRule(),
+    new PredatorMaxAgeRule(),
     new PreyReproductionRule(),
     new PredatorReproductionRule(),
   ];
 }
 
+class AgingRule implements WorldRule {
+  public update(world: World, dt: number): void {
+    for (const animal of world.getAnimals()) {
+      animal.age += dt;
+    }
+  }
+}
+
 class MovementRule implements WorldRule {
   public update(world: World, dt: number): void {
     for (const prey of world.prey) {
-      prey.age += dt;
       prey.move(world.predators, dt, world.width, world.height);
     }
 
     for (const predator of world.predators) {
-      predator.age += dt;
       predator.move(world.pending.livingPrey, dt, world.width, world.height);
     }
   }
@@ -40,9 +49,9 @@ class MovementRule implements WorldRule {
 class PredationRule implements WorldRule {
   public update(world: World): void {
     for (const predator of world.predators) {
-      const target = this.nearestEdiblePrey(predator, world.pending.livingPrey, world.width, world.height);
-      if (target) {
-        world.queuePreyDeath(target);
+      const targetPrey = this.nearestEdiblePrey(predator, world.pending.livingPrey, world.width, world.height);
+      if (targetPrey) {
+        world.queuePreyDeath(targetPrey);
         predator.energy += 9;
         world.eatenCount += 1;
       }
@@ -50,24 +59,41 @@ class PredationRule implements WorldRule {
   }
 
   private nearestEdiblePrey(predator: Predator, prey: readonly Prey[], width: number, height: number): Prey | null {
-    let target: Prey | null = null;
+    let targetPrey: Prey | null = null;
     let targetDistance = EAT_DISTANCE;
     for (const candidate of prey) {
       const distance = predator.distanceTo(candidate, width, height);
       if (distance < targetDistance) {
-        target = candidate;
+        targetPrey = candidate;
         targetDistance = distance;
       }
     }
-    return target;
+    return targetPrey;
+  }
+}
+
+class PredatorEnergyDecayRule implements WorldRule {
+  public update(world: World, dt: number): void {
+    for (const predator of world.predators) {
+      predator.energy -= dt;
+    }
   }
 }
 
 class PredatorStarvationRule implements WorldRule {
-  public update(world: World, dt: number, params: WorldRuleParams): void {
+  public update(world: World): void {
     for (const predator of world.predators) {
-      predator.energy -= dt;
-      if (predator.energy <= 0 || predator.age > params.predatorHunger * 2.4) {
+      if (predator.energy <= 0) {
+        world.queuePredatorDeath(predator);
+      }
+    }
+  }
+}
+
+class PredatorMaxAgeRule implements WorldRule {
+  public update(world: World, _dt: number, params: WorldRuleParams): void {
+    for (const predator of world.predators) {
+      if (predator.age > params.predatorHunger * 2.4) {
         world.queuePredatorDeath(predator);
       }
     }
