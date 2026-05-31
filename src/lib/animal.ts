@@ -11,6 +11,9 @@ export type Steering = {
 
 const COLLISION_AVOIDANCE_DISTANCE = 14;
 const COLLISION_AVOIDANCE_STRENGTH = 3.4;
+const FULL_TURN_RADIANS = Math.PI * 2;
+const STEERING_RESPONSE = 5;
+const UNIT_VECTOR_FALLBACK_LENGTH = 1;
 
 export abstract class Animal {
   public age: number = 0;
@@ -34,9 +37,9 @@ export abstract class Animal {
   }
 
   protected applySteering(steering: Steering, speed: number, dt: number, worldSize: Size): void {
-    this.vx += steering.x * dt * 5;
-    this.vy += steering.y * dt * 5;
-    const length = Math.hypot(this.vx, this.vy) || 1;
+    this.vx += steering.x * dt * STEERING_RESPONSE;
+    this.vy += steering.y * dt * STEERING_RESPONSE;
+    const length = Math.hypot(this.vx, this.vy) || UNIT_VECTOR_FALLBACK_LENGTH;
     this.vx /= length;
     this.vy /= length;
     this.x += this.vx * speed * dt;
@@ -76,26 +79,27 @@ export abstract class Animal {
     let dy = other.y - this.y;
     if (Math.abs(dx) > worldSize.width / 2) dx -= Math.sign(dx) * worldSize.width;
     if (Math.abs(dy) > worldSize.height / 2) dy -= Math.sign(dy) * worldSize.height;
-    const length = Math.hypot(dx, dy) || 1;
+    const length = Math.hypot(dx, dy) || UNIT_VECTOR_FALLBACK_LENGTH;
     return { x: dx / length, y: dy / length };
   }
 }
 
 export class Prey extends Animal {
   private static readonly ESCAPE_STRENGTH = 2.8;
+  private static readonly INITIAL_ENERGY = 5;
   private static readonly SENSE = 92;
   private static readonly SPEED = 42;
   private static readonly WANDER_RANGE = 0.35;
 
   public static create(id: number, worldSize: Size, x?: number, y?: number): Prey {
-    const angle = Math.random() * Math.PI * 2;
+    const angle = Math.random() * FULL_TURN_RADIANS;
     return new Prey(
       id,
       x ?? Math.random() * worldSize.width,
       y ?? Math.random() * worldSize.height,
       Math.cos(angle),
       Math.sin(angle),
-      5,
+      Prey.INITIAL_ENERGY,
     );
   }
 
@@ -117,19 +121,21 @@ export class Prey extends Animal {
 
 export class Predator extends Animal {
   private static readonly CHASE_STRENGTH = 2.6;
+  private static readonly INITIAL_ENERGY_RANGE = 8;
+  private static readonly MIN_INITIAL_ENERGY = 18;
   private static readonly SENSE = 145;
   private static readonly SPEED = 58;
   private static readonly WANDER_RANGE = 0.25;
 
   public static create(id: number, worldSize: Size, x?: number, y?: number): Predator {
-    const angle = Math.random() * Math.PI * 2;
+    const angle = Math.random() * FULL_TURN_RADIANS;
     return new Predator(
       id,
       x ?? Math.random() * worldSize.width,
       y ?? Math.random() * worldSize.height,
       Math.cos(angle),
       Math.sin(angle),
-      18 + Math.random() * 8,
+      Predator.MIN_INITIAL_ENERGY + Math.random() * Predator.INITIAL_ENERGY_RANGE,
     );
   }
 

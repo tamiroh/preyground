@@ -13,6 +13,11 @@ const MAX_GRASS_COUNT = 260;
 const PREY_ENERGY_DECAY_RATE = 0.42;
 const PREY_ENERGY_PER_GRASS = 7;
 const PREY_MAX_ENERGY = 9;
+const PREY_SPAWN_OFFSET_RANGE = 12;
+const STARVATION_ENERGY_THRESHOLD = 0;
+const PREDATOR_MAX_AGE_FACTOR = 2.4;
+const PREDATOR_REPRODUCTION_ENERGY_RETAINED = 0.52;
+const PREDATOR_SPAWN_OFFSET_RANGE = 10;
 
 export type WorldRuleParams = {
   preyBirthRate: number;
@@ -114,7 +119,7 @@ class PreyGrazingRule implements WorldRule {
 class PreyStarvationRule implements WorldRule {
   public update(world: World): void {
     for (const prey of [...world.prey]) {
-      if (prey.energy <= 0) {
+      if (prey.energy <= STARVATION_ENERGY_THRESHOLD) {
         world.killPrey(prey);
       }
     }
@@ -160,7 +165,7 @@ class PredatorEnergyDecayRule implements WorldRule {
 class PredatorStarvationRule implements WorldRule {
   public update(world: World): void {
     for (const predator of [...world.predators]) {
-      if (predator.energy <= 0) {
+      if (predator.energy <= STARVATION_ENERGY_THRESHOLD) {
         world.killPredator(predator);
       }
     }
@@ -170,7 +175,7 @@ class PredatorStarvationRule implements WorldRule {
 class PredatorMaxAgeRule implements WorldRule {
   public update(world: World, _dt: number, params: WorldRuleParams): void {
     for (const predator of [...world.predators]) {
-      if (predator.age > params.predatorHunger * 2.4) {
+      if (predator.age > params.predatorHunger * PREDATOR_MAX_AGE_FACTOR) {
         world.killPredator(predator);
       }
     }
@@ -181,7 +186,7 @@ class PreyReproductionRule implements WorldRule {
   public update(world: World, dt: number, params: WorldRuleParams): void {
     for (const prey of [...world.prey]) {
       if (Math.random() < params.preyBirthRate * dt) {
-        world.spawnPrey(prey.x + randomSigned(12), prey.y + randomSigned(12));
+        world.spawnPrey(prey.x + randomSigned(PREY_SPAWN_OFFSET_RANGE), prey.y + randomSigned(PREY_SPAWN_OFFSET_RANGE));
       }
     }
   }
@@ -191,8 +196,11 @@ class PredatorReproductionRule implements WorldRule {
   public update(world: World, _dt: number, params: WorldRuleParams): void {
     for (const predator of [...world.predators]) {
       if (predator.energy > params.predatorHunger) {
-        predator.energy *= 0.52;
-        world.spawnPredator(predator.x + randomSigned(10), predator.y + randomSigned(10));
+        predator.energy *= PREDATOR_REPRODUCTION_ENERGY_RETAINED;
+        world.spawnPredator(
+          predator.x + randomSigned(PREDATOR_SPAWN_OFFSET_RANGE),
+          predator.y + randomSigned(PREDATOR_SPAWN_OFFSET_RANGE),
+        );
       }
     }
   }
