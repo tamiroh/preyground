@@ -2,13 +2,13 @@ import {
   Animal,
   Predator,
   Prey,
-} from "./animal";
+} from "./animal.ts";
 import type {
   WorldRule,
   WorldRuleParams,
-} from "./world-rules";
-import { createDefaultRules } from "./world-rules";
-import type { Size } from "./math";
+} from "./world-rules.ts";
+import { createDefaultRules } from "./world-rules.ts";
+import type { Size } from "./math.ts";
 
 export type WorldStats = {
   elapsed: number;

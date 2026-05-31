@@ -2,7 +2,7 @@ import {
   randomSigned,
   torusDistance,
   type Size,
-} from "./math";
+} from "./math.ts";
 
 export type Steering = {
   x: number;
@@ -17,15 +17,28 @@ const UNIT_VECTOR_FALLBACK_LENGTH = 1;
 
 export abstract class Animal {
   public age: number = 0;
+  public readonly id: number;
+  public x: number;
+  public y: number;
+  public vx: number;
+  public vy: number;
+  public energy: number;
 
   protected constructor(
-    readonly id: number,
-    public x: number,
-    public y: number,
-    public vx: number,
-    public vy: number,
-    public energy: number,
-  ) {}
+    id: number,
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    energy: number,
+  ) {
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    this.energy = energy;
+  }
 
   public wrap(worldSize: Size): void {
     this.x = (this.x + worldSize.width) % worldSize.width;

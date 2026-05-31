@@ -18,6 +18,14 @@ npm install
 npm run dev
 ```
 
+## CLI
+
+Run the same simulation without the canvas and print the current population counts:
+
+```bash
+npm run cli -- --until-time 180 --speed 8 --report-every 1 --prey-birth-rate 0.025 --predator-hunger 22
+```
+
 ## Deploy
 
 Every push to `main` builds the app and deploys `dist/` to GitHub Pages using GitHub Actions.

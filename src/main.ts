@@ -2,10 +2,10 @@ import {
   CanvasRenderer,
   type ChartPoint,
   type PopulationHistory,
-} from "./lib/renderer";
+} from "./lib/renderer.ts";
 import "./style.css";
-import { SimulationUi } from "./lib/ui";
-import { World } from "./lib/world";
+import { SimulationUi } from "./lib/ui.ts";
+import { World } from "./lib/world.ts";
 
 const FIXED_DT = 1 / 60;
 

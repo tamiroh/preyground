@@ -1,9 +1,9 @@
 import {
   Predator,
   type Animal,
-} from "./animal";
-import type { Size } from "./math";
-import type { Grass } from "./world";
+} from "./animal.ts";
+import type { Size } from "./math.ts";
+import type { Grass } from "./world.ts";
 
 export type ChartPoint = {
   time: number;

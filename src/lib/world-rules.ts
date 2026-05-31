@@ -1,9 +1,9 @@
-import type { Predator, Prey } from "./animal";
+import type { Predator, Prey } from "./animal.ts";
 import {
   randomSigned,
   torusDistance,
-} from "./math";
-import type { Grass, World, WorldSize } from "./world";
+} from "./math.ts";
+import type { Grass, World, WorldSize } from "./world.ts";
 
 const EAT_DISTANCE = 8;
 const PREDATOR_ENERGY_PER_PREY = 9;

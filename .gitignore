@@ -18,6 +18,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Tool caches
+.tmp/
 .vite/
 .tsbuildinfo
 *.tsbuildinfo
