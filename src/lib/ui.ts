@@ -2,7 +2,8 @@ type WorldStatsView = {
   elapsed: number;
   preyCount: number;
   predatorCount: number;
-  eatenCount: number;
+  killedPreyCount: number;
+  killedPredatorCount: number;
 };
 
 type WorldRuleParamsView = {
@@ -15,7 +16,7 @@ type UiElements = {
   preyCount: HTMLElement | null;
   predatorCount: HTMLElement | null;
   predatorStat: HTMLElement | null;
-  eatenCount: HTMLElement | null;
+  killedPreyCount: HTMLElement | null;
   toggleRun: HTMLButtonElement | null;
   reset: HTMLButtonElement | null;
   speed: HTMLInputElement | null;
@@ -29,7 +30,7 @@ export class SimulationUi {
     preyCount: document.querySelector<HTMLElement>("#preyCount"),
     predatorCount: document.querySelector<HTMLElement>("#predatorCount"),
     predatorStat: document.querySelector<HTMLElement>("#predatorStat"),
-    eatenCount: document.querySelector<HTMLElement>("#eatenCount"),
+    killedPreyCount: document.querySelector<HTMLElement>("#killedPreyCount"),
     toggleRun: document.querySelector<HTMLButtonElement>("#toggleRun"),
     reset: document.querySelector<HTMLButtonElement>("#reset"),
     speed: document.querySelector<HTMLInputElement>("#speed"),
@@ -58,7 +59,7 @@ export class SimulationUi {
     if (this.elements.time) this.elements.time.textContent = stats.elapsed.toFixed(0);
     if (this.elements.preyCount) this.elements.preyCount.textContent = String(stats.preyCount);
     if (this.elements.predatorCount) this.elements.predatorCount.textContent = String(stats.predatorCount);
-    if (this.elements.eatenCount) this.elements.eatenCount.textContent = String(stats.eatenCount);
+    if (this.elements.killedPreyCount) this.elements.killedPreyCount.textContent = String(stats.killedPreyCount);
   }
 
   public onToggleRun(handler: () => void): void {

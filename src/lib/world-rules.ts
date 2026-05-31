@@ -3,6 +3,7 @@ import { randomSigned } from "./math";
 import type { World } from "./world";
 
 const EAT_DISTANCE = 8;
+const PREDATOR_ENERGY_PER_PREY = 9;
 
 export type WorldRuleParams = {
   preyBirthRate: number;
@@ -51,9 +52,9 @@ class PredationRule implements WorldRule {
     for (const predator of world.predators) {
       const targetPrey = this.nearestEdiblePrey(predator, world.prey, world.width, world.height);
       if (targetPrey) {
-        world.killPrey(targetPrey);
-        predator.energy += 9;
-        world.eatenCount += 1;
+        if (world.killPrey(targetPrey)) {
+          predator.energy += PREDATOR_ENERGY_PER_PREY;
+        }
       }
     }
   }

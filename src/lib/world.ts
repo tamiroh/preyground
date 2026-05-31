@@ -13,7 +13,8 @@ export type WorldStats = {
   elapsed: number;
   preyCount: number;
   predatorCount: number;
-  eatenCount: number;
+  killedPreyCount: number;
+  killedPredatorCount: number;
 };
 
 const INITIAL_PREY = 90;
@@ -23,9 +24,10 @@ export class World {
   public prey: Prey[] = [];
   public predators: Predator[] = [];
   public elapsed = 0;
-  public eatenCount = 0;
 
   private nextId = 1;
+  private killedPreyCount = 0;
+  private killedPredatorCount = 0;
 
   public constructor(
     public width: number,
@@ -46,7 +48,8 @@ export class World {
     this.predators = [];
     this.nextId = 1;
     this.elapsed = 0;
-    this.eatenCount = 0;
+    this.killedPreyCount = 0;
+    this.killedPredatorCount = 0;
     for (let i = 0; i < INITIAL_PREY; i += 1) {
       this.prey.push(this.createPrey());
     }
@@ -71,7 +74,8 @@ export class World {
       elapsed: this.elapsed,
       preyCount: this.prey.length,
       predatorCount: this.predators.length,
-      eatenCount: this.eatenCount,
+      killedPreyCount: this.killedPreyCount,
+      killedPredatorCount: this.killedPredatorCount,
     };
   }
 
@@ -83,12 +87,26 @@ export class World {
     this.predators.push(this.createPredator(x, y));
   }
 
-  public killPrey(prey: Prey): void {
+  public killPrey(prey: Prey): boolean {
+    const previousPreyCount = this.prey.length;
+
     this.prey = this.prey.filter((animal) => animal.id !== prey.id);
+
+    const killedPreyCount = previousPreyCount - this.prey.length;
+    this.killedPreyCount += killedPreyCount;
+
+    return killedPreyCount > 0;
   }
 
-  public killPredator(predator: Predator): void {
+  public killPredator(predator: Predator): boolean {
+    const previousPredatorCount = this.predators.length;
+
     this.predators = this.predators.filter((animal) => animal.id !== predator.id);
+
+    const killedPredatorCount = previousPredatorCount - this.predators.length;
+    this.killedPredatorCount += killedPredatorCount;
+
+    return killedPredatorCount > 0;
   }
 
   private createPrey(x = Math.random() * this.width, y = Math.random() * this.height): Prey {
