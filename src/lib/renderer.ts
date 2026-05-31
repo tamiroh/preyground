@@ -8,6 +8,11 @@ export type ChartPoint = {
   value: number;
 };
 
+export type PopulationHistory = {
+  prey: readonly ChartPoint[];
+  predators: readonly ChartPoint[];
+};
+
 export class CanvasRenderer {
   private width = 0;
   private height = 0;
@@ -28,14 +33,14 @@ export class CanvasRenderer {
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
-  public render(animals: readonly Animal[], predatorHistory: readonly ChartPoint[] | null = null): void {
+  public render(animals: readonly Animal[], populationHistory: PopulationHistory | null = null): void {
     this.context.clearRect(0, 0, this.width, this.height);
     this.drawBackground();
     for (const animal of animals) {
       this.drawAnimal(animal);
     }
-    if (predatorHistory) {
-      this.drawPredatorChart(predatorHistory);
+    if (populationHistory) {
+      this.drawPopulationChart(populationHistory);
     }
   }
 
@@ -84,7 +89,7 @@ export class CanvasRenderer {
     this.context.restore();
   }
 
-  private drawPredatorChart(history: readonly ChartPoint[]): void {
+  private drawPopulationChart(history: PopulationHistory): void {
     const chartWidth = Math.max(280, this.width - 36);
     const chartHeight = 190;
     const left = 18;
@@ -104,9 +109,9 @@ export class CanvasRenderer {
 
     this.context.fillStyle = "#eef3f6";
     this.context.font = "600 13px ui-sans-serif, system-ui";
-    this.context.fillText("Predators over time", left + 14, top + 24);
+    this.context.fillText("Population over time", left + 14, top + 24);
 
-    if (history.length < 2) {
+    if (history.prey.length < 2 || history.predators.length < 2) {
       this.context.fillStyle = "rgb(238 243 246 / 0.65)";
       this.context.font = "12px ui-sans-serif, system-ui";
       this.context.fillText("Collecting data...", left + 14, top + 50);
@@ -114,10 +119,18 @@ export class CanvasRenderer {
       return;
     }
 
-    const sampledHistory = this.sampleChartHistory(history, Math.max(2, Math.floor(plotWidth)));
-    const minTime = history[0].time;
-    const maxTime = history[history.length - 1].time;
-    const maxValue = Math.max(1, ...history.map((point) => point.value));
+    const sampledPreyHistory = this.sampleChartHistory(history.prey, Math.max(2, Math.floor(plotWidth)));
+    const sampledPredatorHistory = this.sampleChartHistory(history.predators, Math.max(2, Math.floor(plotWidth)));
+    const minTime = Math.min(history.prey[0].time, history.predators[0].time);
+    const maxTime = Math.max(
+      history.prey[history.prey.length - 1].time,
+      history.predators[history.predators.length - 1].time,
+    );
+    const maxValue = Math.max(
+      1,
+      ...history.prey.map((point) => point.value),
+      ...history.predators.map((point) => point.value),
+    );
     const plotLeft = left + padding;
     const plotTop = top + 48;
     const plotBottom = plotTop + plotHeight;
@@ -129,10 +142,37 @@ export class CanvasRenderer {
     this.context.lineTo(plotLeft + plotWidth, plotBottom);
     this.context.stroke();
 
-    this.context.strokeStyle = "#ef767a";
+    this.drawChartLine(sampledPreyHistory, "#8ee6a8", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPredatorHistory, "#ef767a", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+
+    const latestPrey = history.prey[history.prey.length - 1];
+    const latestPredators = history.predators[history.predators.length - 1];
+    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
+    this.context.font = "12px ui-sans-serif, system-ui";
+    this.context.fillStyle = "#8ee6a8";
+    this.context.fillText(`prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
+    this.context.fillStyle = "#ef767a";
+    this.context.fillText(`predators ${latestPredators.value}`, plotLeft + 82, plotBottom + 22);
+    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
+    this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
+    this.context.restore();
+  }
+
+  private drawChartLine(
+    history: readonly ChartPoint[],
+    color: string,
+    minTime: number,
+    maxTime: number,
+    maxValue: number,
+    plotLeft: number,
+    plotBottom: number,
+    plotWidth: number,
+    plotHeight: number,
+  ): void {
+    this.context.strokeStyle = color;
     this.context.lineWidth = 2;
     this.context.beginPath();
-    sampledHistory.forEach((point, index) => {
+    history.forEach((point, index) => {
       const x = plotLeft + ((point.time - minTime) / Math.max(1, maxTime - minTime)) * plotWidth;
       const y = plotBottom - (point.value / maxValue) * plotHeight;
       if (index === 0) {
@@ -142,13 +182,6 @@ export class CanvasRenderer {
       }
     });
     this.context.stroke();
-
-    const latest = history[history.length - 1];
-    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
-    this.context.font = "12px ui-sans-serif, system-ui";
-    this.context.fillText(`now ${latest.value}`, plotLeft, plotBottom + 22);
-    this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
-    this.context.restore();
   }
 
   private sampleChartHistory(history: readonly ChartPoint[], maxPoints: number): readonly ChartPoint[] {

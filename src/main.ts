@@ -1,6 +1,7 @@
 import {
   CanvasRenderer,
   type ChartPoint,
+  type PopulationHistory,
 } from "./lib/renderer";
 import "./style.css";
 import { SimulationUi } from "./lib/ui";
@@ -24,6 +25,7 @@ const world = new World(window.innerWidth, window.innerHeight);
 
 let running = true;
 let predatorChartVisible = false;
+let preyHistory: ChartPoint[] = [];
 let predatorHistory: ChartPoint[] = [];
 let lastRecordedTime = -1;
 
@@ -44,17 +46,25 @@ function tick(): void {
     }
   }
   const stats = world.stats;
-  recordPredatorHistory(stats.elapsed, stats.predatorCount);
+  recordPopulationHistory(stats.elapsed, stats.preyCount, stats.predatorCount);
   ui.updateStats(stats);
-  renderer.render(world.animals, predatorChartVisible ? predatorHistory : null);
+  renderer.render(world.animals, predatorChartVisible ? getPopulationHistory() : null);
 }
 
-function recordPredatorHistory(time: number, value: number): void {
+function recordPopulationHistory(time: number, preyCount: number, predatorCount: number): void {
   if (time === lastRecordedTime) {
     return;
   }
   lastRecordedTime = time;
-  predatorHistory.push({ time, value });
+  preyHistory.push({ time, value: preyCount });
+  predatorHistory.push({ time, value: predatorCount });
+}
+
+function getPopulationHistory(): PopulationHistory {
+  return {
+    prey: preyHistory,
+    predators: predatorHistory,
+  };
 }
 
 ui.onToggleRun(() => {
@@ -64,6 +74,7 @@ ui.onToggleRun(() => {
 
 ui.onReset(() => {
   world.reset();
+  preyHistory = [];
   predatorHistory = [];
   lastRecordedTime = -1;
 });
