@@ -5,6 +5,9 @@ export type Steering = {
   y: number;
 };
 
+const COLLISION_AVOIDANCE_DISTANCE = 14;
+const COLLISION_AVOIDANCE_STRENGTH = 3.4;
+
 export abstract class Animal {
   public age: number = 0;
 
@@ -28,19 +31,6 @@ export abstract class Animal {
     return Math.hypot(dx, dy);
   }
 
-  protected nearest<T extends Animal>(candidates: readonly T[], maxDistance: number, width: number, height: number): T | null {
-    let best: T | null = null;
-    let bestDistance = maxDistance;
-    for (const candidate of candidates) {
-      const currentDistance = this.distanceTo(candidate, width, height);
-      if (currentDistance < bestDistance) {
-        best = candidate;
-        bestDistance = currentDistance;
-      }
-    }
-    return best;
-  }
-
   protected applySteering(steering: Steering, speed: number, dt: number, width: number, height: number): void {
     this.vx += steering.x * dt * 5;
     this.vy += steering.y * dt * 5;
@@ -59,20 +49,24 @@ export abstract class Animal {
     };
   }
 
-  protected steerToward(other: Animal, strength: number, width: number, height: number): Steering {
-    const direction = this.directionTo(other, width, height);
-    return {
-      x: direction.x * strength,
-      y: direction.y * strength,
-    };
-  }
+  protected potentialFrom(sources: readonly Animal[], radius: number, strength: number, width: number, height: number): Steering {
+    const steering = { x: 0, y: 0 };
 
-  protected steerAwayFrom(other: Animal, strength: number, width: number, height: number): Steering {
-    const direction = other.directionTo(this, width, height);
-    return {
-      x: direction.x * strength,
-      y: direction.y * strength,
-    };
+    for (const source of sources) {
+      if (source.id === this.id) {
+        continue;
+      }
+
+      const distance = this.distanceTo(source, width, height);
+      if (distance > 0 && distance < radius) {
+        const direction = this.directionTo(source, width, height);
+        const force = (1 - distance / radius) * strength;
+        steering.x += direction.x * force;
+        steering.y += direction.y * force;
+      }
+    }
+
+    return steering;
   }
 
   private directionTo(other: Animal, width: number, height: number): Steering {
@@ -107,18 +101,14 @@ export class Prey extends Animal {
     super(id, x, y, vx, vy, energy);
   }
 
-  private nearestThreat(predators: readonly Predator[], width: number, height: number): Predator | null {
-    return this.nearest(predators, Prey.SENSE, width, height);
-  }
-
-  public move(predatorsInView: readonly Predator[], dt: number, width: number, height: number): void {
-    const threat = this.nearestThreat(predatorsInView, width, height);
+  public move(predatorsInView: readonly Predator[], neighbors: readonly Animal[], dt: number, width: number, height: number): void {
     const steering = this.randomSteering(Prey.WANDER_RANGE);
-    if (threat) {
-      const escape = this.steerAwayFrom(threat, Prey.ESCAPE_STRENGTH, width, height);
-      steering.x += escape.x;
-      steering.y += escape.y;
-    }
+    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, width, height);
+    const escape = this.potentialFrom(predatorsInView, Prey.SENSE, -Prey.ESCAPE_STRENGTH, width, height);
+    steering.x += avoidance.x;
+    steering.y += avoidance.y;
+    steering.x += escape.x;
+    steering.y += escape.y;
     this.applySteering(steering, Prey.SPEED, dt, width, height);
   }
 }
@@ -145,19 +135,14 @@ export class Predator extends Animal {
     super(id, x, y, vx, vy, energy);
   }
 
-  private nearestPrey(prey: readonly Prey[], width: number, height: number): Prey | null {
-    return this.nearest(prey, Predator.SENSE, width, height);
-  }
-
-  public move(preyInView: readonly Prey[], dt: number, width: number, height: number): Prey | null {
-    const target = this.nearestPrey(preyInView, width, height);
+  public move(preyInView: readonly Prey[], neighbors: readonly Animal[], dt: number, width: number, height: number): void {
     const steering = this.randomSteering(Predator.WANDER_RANGE);
-    if (target) {
-      const chase = this.steerToward(target, Predator.CHASE_STRENGTH, width, height);
-      steering.x += chase.x;
-      steering.y += chase.y;
-    }
+    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, width, height);
+    const chase = this.potentialFrom(preyInView, Predator.SENSE, Predator.CHASE_STRENGTH, width, height);
+    steering.x += avoidance.x;
+    steering.y += avoidance.y;
+    steering.x += chase.x;
+    steering.y += chase.y;
     this.applySteering(steering, Predator.SPEED, dt, width, height);
-    return target;
   }
 }

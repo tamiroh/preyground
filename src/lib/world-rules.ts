@@ -38,13 +38,14 @@ class AgingRule implements WorldRule {
 class MovementRule implements WorldRule {
   public update(world: World, dt: number): void {
     const size = world.size;
+    const animals = world.animals;
 
     for (const prey of world.prey) {
-      prey.move(world.predators, dt, size.width, size.height);
+      prey.move(world.predators, animals, dt, size.width, size.height);
     }
 
     for (const predator of world.predators) {
-      predator.move(world.prey, dt, size.width, size.height);
+      predator.move(world.prey, animals, dt, size.width, size.height);
     }
   }
 }
