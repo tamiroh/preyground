@@ -43,7 +43,7 @@ function tick(): void {
       world.step(FIXED_DT, params);
     }
   }
-  const stats = world.getStats();
+  const stats = world.stats;
   recordPredatorHistory(stats.elapsed, stats.predatorCount);
   ui.updateStats(stats);
   renderer.render(world.animals, predatorChartVisible ? predatorHistory : null);

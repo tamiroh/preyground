@@ -37,20 +37,24 @@ class AgingRule implements WorldRule {
 
 class MovementRule implements WorldRule {
   public update(world: World, dt: number): void {
+    const size = world.size;
+
     for (const prey of world.prey) {
-      prey.move(world.predators, dt, world.width, world.height);
+      prey.move(world.predators, dt, size.width, size.height);
     }
 
     for (const predator of world.predators) {
-      predator.move(world.prey, dt, world.width, world.height);
+      predator.move(world.prey, dt, size.width, size.height);
     }
   }
 }
 
 class PredationRule implements WorldRule {
   public update(world: World): void {
+    const size = world.size;
+
     for (const predator of world.predators) {
-      const targetPrey = this.nearestEdiblePrey(predator, world.prey, world.width, world.height);
+      const targetPrey = this.nearestEdiblePrey(predator, world.prey, size.width, size.height);
       if (targetPrey) {
         if (world.killPrey(targetPrey)) {
           predator.energy += PREDATOR_ENERGY_PER_PREY;
