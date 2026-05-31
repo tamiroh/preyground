@@ -48,7 +48,7 @@ function tick(): void {
   const stats = world.stats;
   recordPopulationHistory(stats.elapsed, stats.preyCount, stats.predatorCount);
   ui.updateStats(stats);
-  renderer.render(world.animals, predatorChartVisible ? getPopulationHistory() : null);
+  renderer.render(world.animals, world.grass, predatorChartVisible ? getPopulationHistory() : null);
 }
 
 function recordPopulationHistory(time: number, preyCount: number, predatorCount: number): void {

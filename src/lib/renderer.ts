@@ -2,6 +2,7 @@ import {
   Predator,
   type Animal,
 } from "./animal";
+import type { Grass } from "./world";
 
 export type ChartPoint = {
   time: number;
@@ -33,15 +34,29 @@ export class CanvasRenderer {
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
-  public render(animals: readonly Animal[], populationHistory: PopulationHistory | null = null): void {
+  public render(
+    animals: readonly Animal[],
+    grasses: readonly Readonly<Grass>[],
+    populationHistory: PopulationHistory | null = null,
+  ): void {
     this.context.clearRect(0, 0, this.width, this.height);
     this.drawBackground();
+    for (const grass of grasses) {
+      this.drawGrass(grass);
+    }
     for (const animal of animals) {
       this.drawAnimal(animal);
     }
     if (populationHistory) {
       this.drawPopulationChart(populationHistory);
     }
+  }
+
+  private drawGrass(grass: Readonly<Grass>): void {
+    this.context.fillStyle = "rgb(92 176 91 / 0.5)";
+    this.context.beginPath();
+    this.context.arc(grass.x, grass.y, 2.8, 0, Math.PI * 2);
+    this.context.fill();
   }
 
   private drawBackground(): void {

@@ -1,4 +1,7 @@
-import { randomSigned } from "./math";
+import {
+  randomSigned,
+  torusDistance,
+} from "./math";
 
 export type Steering = {
   x: number;
@@ -26,9 +29,7 @@ export abstract class Animal {
   }
 
   public distanceTo(other: Animal, width: number, height: number): number {
-    const dx = Math.min(Math.abs(this.x - other.x), width - Math.abs(this.x - other.x));
-    const dy = Math.min(Math.abs(this.y - other.y), height - Math.abs(this.y - other.y));
-    return Math.hypot(dx, dy);
+    return torusDistance(this.x, this.y, other.x, other.y, width, height);
   }
 
   protected applySteering(steering: Steering, speed: number, dt: number, width: number, height: number): void {
@@ -93,7 +94,7 @@ export class Prey extends Animal {
       y ?? Math.random() * height,
       Math.cos(angle),
       Math.sin(angle),
-      1,
+      5,
     );
   }
 

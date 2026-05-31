@@ -1,9 +1,18 @@
 import type { Predator, Prey } from "./animal";
-import { randomSigned } from "./math";
-import type { World } from "./world";
+import {
+  randomSigned,
+  torusDistance,
+} from "./math";
+import type { Grass, World } from "./world";
 
 const EAT_DISTANCE = 8;
 const PREDATOR_ENERGY_PER_PREY = 9;
+const GRAZE_DISTANCE = 10;
+const GRASS_REGROW_RATE = 5.5;
+const MAX_GRASS_COUNT = 260;
+const PREY_ENERGY_DECAY_RATE = 0.42;
+const PREY_ENERGY_PER_GRASS = 7;
+const PREY_MAX_ENERGY = 9;
 
 export type WorldRuleParams = {
   preyBirthRate: number;
@@ -17,7 +26,11 @@ export interface WorldRule {
 export function createDefaultRules(): WorldRule[] {
   return [
     new AgingRule(),
+    new GrassRegrowthRule(),
     new MovementRule(),
+    new PreyEnergyDecayRule(),
+    new PreyGrazingRule(),
+    new PreyStarvationRule(),
     new PredationRule(),
     new PredatorEnergyDecayRule(),
     new PredatorStarvationRule(),
@@ -35,6 +48,14 @@ class AgingRule implements WorldRule {
   }
 }
 
+class GrassRegrowthRule implements WorldRule {
+  public update(world: World, dt: number): void {
+    if (world.grass.length < MAX_GRASS_COUNT && Math.random() < GRASS_REGROW_RATE * dt) {
+      world.spawnGrass();
+    }
+  }
+}
+
 class MovementRule implements WorldRule {
   public update(world: World, dt: number): void {
     const size = world.size;
@@ -46,6 +67,57 @@ class MovementRule implements WorldRule {
 
     for (const predator of world.predators) {
       predator.move(world.prey, animals, dt, size.width, size.height);
+    }
+  }
+}
+
+class PreyEnergyDecayRule implements WorldRule {
+  public update(world: World, dt: number): void {
+    for (const prey of world.prey) {
+      prey.energy -= PREY_ENERGY_DECAY_RATE * dt;
+    }
+  }
+}
+
+class PreyGrazingRule implements WorldRule {
+  public update(world: World): void {
+    const size = world.size;
+
+    for (const prey of world.prey) {
+      const grass = this.nearestEdibleGrass(prey, world.grass, size.width, size.height);
+      if (grass && world.eatGrass(grass)) {
+        prey.energy = Math.min(PREY_MAX_ENERGY, prey.energy + PREY_ENERGY_PER_GRASS);
+      }
+    }
+  }
+
+  private nearestEdibleGrass(
+    prey: Prey,
+    grasses: readonly Readonly<Grass>[],
+    width: number,
+    height: number,
+  ): Readonly<Grass> | null {
+    let targetGrass: Readonly<Grass> | null = null;
+    let targetDistance = GRAZE_DISTANCE;
+
+    for (const grass of grasses) {
+      const distance = torusDistance(prey.x, prey.y, grass.x, grass.y, width, height);
+      if (distance < targetDistance) {
+        targetGrass = grass;
+        targetDistance = distance;
+      }
+    }
+
+    return targetGrass;
+  }
+}
+
+class PreyStarvationRule implements WorldRule {
+  public update(world: World): void {
+    for (const prey of [...world.prey]) {
+      if (prey.energy <= 0) {
+        world.killPrey(prey);
+      }
     }
   }
 }
