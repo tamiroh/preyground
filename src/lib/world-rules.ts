@@ -28,7 +28,7 @@ export function createDefaultRules(): WorldRule[] {
 
 class AgingRule implements WorldRule {
   public update(world: World, dt: number): void {
-    for (const animal of world.getAnimals()) {
+    for (const animal of world.animals) {
       animal.age += dt;
     }
   }

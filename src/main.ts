@@ -46,7 +46,7 @@ function tick(): void {
   const stats = world.getStats();
   recordPredatorHistory(stats.elapsed, stats.predatorCount);
   ui.updateStats(stats);
-  renderer.render(world.getAnimals(), predatorChartVisible ? predatorHistory : null);
+  renderer.render(world.animals, predatorChartVisible ? predatorHistory : null);
 }
 
 function recordPredatorHistory(time: number, value: number): void {

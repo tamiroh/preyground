@@ -36,7 +36,7 @@ export class World {
   public resize(width: number, height: number): void {
     this.width = width;
     this.height = height;
-    for (const animal of this.getAnimals()) {
+    for (const animal of this.animals) {
       animal.wrap(this.width, this.height);
     }
   }
@@ -62,7 +62,7 @@ export class World {
     this.elapsed += dt;
   }
 
-  public getAnimals(): readonly Animal[] {
+  public get animals(): readonly Animal[] {
     return [...this.prey, ...this.predators];
   }
 
