@@ -41,7 +41,7 @@ class MovementRule implements WorldRule {
     }
 
     for (const predator of world.predators) {
-      predator.move(world.pending.livingPrey, dt, world.width, world.height);
+      predator.move(world.prey, dt, world.width, world.height);
     }
   }
 }
@@ -49,9 +49,9 @@ class MovementRule implements WorldRule {
 class PredationRule implements WorldRule {
   public update(world: World): void {
     for (const predator of world.predators) {
-      const targetPrey = this.nearestEdiblePrey(predator, world.pending.livingPrey, world.width, world.height);
+      const targetPrey = this.nearestEdiblePrey(predator, world.prey, world.width, world.height);
       if (targetPrey) {
-        world.queuePreyDeath(targetPrey);
+        world.killPrey(targetPrey);
         predator.energy += 9;
         world.eatenCount += 1;
       }
@@ -82,9 +82,9 @@ class PredatorEnergyDecayRule implements WorldRule {
 
 class PredatorStarvationRule implements WorldRule {
   public update(world: World): void {
-    for (const predator of world.predators) {
+    for (const predator of [...world.predators]) {
       if (predator.energy <= 0) {
-        world.queuePredatorDeath(predator);
+        world.killPredator(predator);
       }
     }
   }
@@ -92,9 +92,9 @@ class PredatorStarvationRule implements WorldRule {
 
 class PredatorMaxAgeRule implements WorldRule {
   public update(world: World, _dt: number, params: WorldRuleParams): void {
-    for (const predator of world.predators) {
+    for (const predator of [...world.predators]) {
       if (predator.age > params.predatorHunger * 2.4) {
-        world.queuePredatorDeath(predator);
+        world.killPredator(predator);
       }
     }
   }
@@ -102,9 +102,9 @@ class PredatorMaxAgeRule implements WorldRule {
 
 class PreyReproductionRule implements WorldRule {
   public update(world: World, dt: number, params: WorldRuleParams): void {
-    for (const prey of world.prey) {
+    for (const prey of [...world.prey]) {
       if (Math.random() < params.preyBirthRate * dt) {
-        world.queuePreySpawn(prey.x + randomSigned(12), prey.y + randomSigned(12));
+        world.spawnPrey(prey.x + randomSigned(12), prey.y + randomSigned(12));
       }
     }
   }
@@ -112,10 +112,10 @@ class PreyReproductionRule implements WorldRule {
 
 class PredatorReproductionRule implements WorldRule {
   public update(world: World, _dt: number, params: WorldRuleParams): void {
-    for (const predator of world.predators) {
+    for (const predator of [...world.predators]) {
       if (predator.energy > params.predatorHunger) {
         predator.energy *= 0.52;
-        world.queuePredatorSpawn(predator.x + randomSigned(10), predator.y + randomSigned(10));
+        world.spawnPredator(predator.x + randomSigned(10), predator.y + randomSigned(10));
       }
     }
   }

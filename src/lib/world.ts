@@ -19,17 +19,6 @@ export type WorldStats = {
 const INITIAL_PREY = 90;
 const INITIAL_PREDATORS = 16;
 
-type PendingWorldChanges = {
-  preyToSpawn: Prey[];
-  predatorsToSpawn: Predator[];
-  preyToKill: Set<number>;
-  predatorsToKill: Set<number>;
-};
-
-type PendingWorldView = {
-  livingPrey: readonly Prey[];
-};
-
 export class World {
   public prey: Prey[] = [];
   public predators: Predator[] = [];
@@ -37,7 +26,6 @@ export class World {
   public eatenCount = 0;
 
   private nextId = 1;
-  private pendingChanges: PendingWorldChanges = createEmptyPendingChanges();
 
   public constructor(
     public width: number,
@@ -56,7 +44,6 @@ export class World {
   public reset(): void {
     this.prey = [];
     this.predators = [];
-    this.pendingChanges = createEmptyPendingChanges();
     this.nextId = 1;
     this.elapsed = 0;
     this.eatenCount = 0;
@@ -69,11 +56,9 @@ export class World {
   }
 
   public step(dt: number, params: WorldRuleParams): void {
-    this.resetPendingChanges();
     for (const rule of this.rules) {
       rule.update(this, dt, params);
     }
-    this.commitPendingChanges();
     this.elapsed += dt;
   }
 
@@ -90,37 +75,20 @@ export class World {
     };
   }
 
-  public get pending(): PendingWorldView {
-    return {
-      livingPrey: this.prey.filter((animal) => !this.pendingChanges.preyToKill.has(animal.id)),
-    };
+  public spawnPrey(x: number, y: number): void {
+    this.prey.push(this.createPrey(x, y));
   }
 
-  public queuePreySpawn(x: number, y: number): void {
-    this.pendingChanges.preyToSpawn.push(this.createPrey(x, y));
+  public spawnPredator(x: number, y: number): void {
+    this.predators.push(this.createPredator(x, y));
   }
 
-  public queuePredatorSpawn(x: number, y: number): void {
-    this.pendingChanges.predatorsToSpawn.push(this.createPredator(x, y));
+  public killPrey(prey: Prey): void {
+    this.prey = this.prey.filter((animal) => animal.id !== prey.id);
   }
 
-  public queuePreyDeath(prey: Prey): void {
-    this.pendingChanges.preyToKill.add(prey.id);
-  }
-
-  public queuePredatorDeath(predator: Predator): void {
-    this.pendingChanges.predatorsToKill.add(predator.id);
-  }
-
-  private resetPendingChanges(): void {
-    this.pendingChanges = createEmptyPendingChanges();
-  }
-
-  private commitPendingChanges(): void {
-    this.prey = this.prey.filter((animal) => !this.pendingChanges.preyToKill.has(animal.id));
-    this.predators = this.predators.filter((animal) => !this.pendingChanges.predatorsToKill.has(animal.id));
-    this.prey.push(...this.pendingChanges.preyToSpawn);
-    this.predators.push(...this.pendingChanges.predatorsToSpawn);
+  public killPredator(predator: Predator): void {
+    this.predators = this.predators.filter((animal) => animal.id !== predator.id);
   }
 
   private createPrey(x = Math.random() * this.width, y = Math.random() * this.height): Prey {
@@ -130,13 +98,4 @@ export class World {
   private createPredator(x = Math.random() * this.width, y = Math.random() * this.height): Predator {
     return Predator.create(this.nextId++, this.width, this.height, x, y);
   }
-}
-
-function createEmptyPendingChanges(): PendingWorldChanges {
-  return {
-    preyToSpawn: [],
-    predatorsToSpawn: [],
-    preyToKill: new Set<number>(),
-    predatorsToKill: new Set<number>(),
-  };
 }
