@@ -8,6 +8,7 @@ import type {
   WorldRuleParams,
 } from "./world-rules";
 import { createDefaultRules } from "./world-rules";
+import type { Size } from "./math";
 
 export type WorldStats = {
   elapsed: number;
@@ -17,10 +18,7 @@ export type WorldStats = {
   killedPredatorCount: number;
 };
 
-export type WorldSize = {
-  width: number;
-  height: number;
-};
+export type WorldSize = Size;
 
 export type Grass = {
   id: number;
@@ -33,8 +31,7 @@ const INITIAL_PREDATORS = 16;
 const INITIAL_GRASS = 220;
 
 export class World {
-  private worldWidth: number;
-  private worldHeight: number;
+  private worldSize: WorldSize;
   private readonly rules: readonly WorldRule[];
   private preyAnimals: Prey[] = [];
   private predatorAnimals: Predator[] = [];
@@ -46,24 +43,21 @@ export class World {
   private killedPredatorCount = 0;
 
   public constructor(
-    width: number,
-    height: number,
+    worldSize: WorldSize,
     rules: readonly WorldRule[] = createDefaultRules(),
   ) {
-    this.worldWidth = width;
-    this.worldHeight = height;
+    this.worldSize = worldSize;
     this.rules = rules;
   }
 
-  public resize(width: number, height: number): void {
-    this.worldWidth = width;
-    this.worldHeight = height;
+  public resize(worldSize: WorldSize): void {
+    this.worldSize = worldSize;
     for (const animal of this.animals) {
-      animal.wrap(this.worldWidth, this.worldHeight);
+      animal.wrap(this.worldSize);
     }
     for (const grass of this.grasses) {
-      grass.x = (grass.x + this.worldWidth) % this.worldWidth;
-      grass.y = (grass.y + this.worldHeight) % this.worldHeight;
+      grass.x = (grass.x + this.worldSize.width) % this.worldSize.width;
+      grass.y = (grass.y + this.worldSize.height) % this.worldSize.height;
     }
   }
 
@@ -111,10 +105,7 @@ export class World {
   }
 
   public get size(): WorldSize {
-    return {
-      width: this.worldWidth,
-      height: this.worldHeight,
-    };
+    return this.worldSize;
   }
 
   public get stats(): WorldStats {
@@ -169,19 +160,19 @@ export class World {
     return killedPredatorCount > 0;
   }
 
-  private createPrey(x = Math.random() * this.worldWidth, y = Math.random() * this.worldHeight): Prey {
-    return Prey.create(this.nextId++, this.worldWidth, this.worldHeight, x, y);
+  private createPrey(x = Math.random() * this.worldSize.width, y = Math.random() * this.worldSize.height): Prey {
+    return Prey.create(this.nextId++, this.worldSize, x, y);
   }
 
-  private createPredator(x = Math.random() * this.worldWidth, y = Math.random() * this.worldHeight): Predator {
-    return Predator.create(this.nextId++, this.worldWidth, this.worldHeight, x, y);
+  private createPredator(x = Math.random() * this.worldSize.width, y = Math.random() * this.worldSize.height): Predator {
+    return Predator.create(this.nextId++, this.worldSize, x, y);
   }
 
   private createGrass(): Grass {
     return {
       id: this.nextGrassId++,
-      x: Math.random() * this.worldWidth,
-      y: Math.random() * this.worldHeight,
+      x: Math.random() * this.worldSize.width,
+      y: Math.random() * this.worldSize.height,
     };
   }
 }

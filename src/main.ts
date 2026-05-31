@@ -21,7 +21,10 @@ if (!context) {
 
 const ui = new SimulationUi();
 const renderer = new CanvasRenderer(canvasElement, context);
-const world = new World(window.innerWidth, window.innerHeight);
+const world = new World({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
 
 let running = true;
 let predatorChartVisible = false;
@@ -30,10 +33,12 @@ let predatorHistory: ChartPoint[] = [];
 let lastRecordedTime = -1;
 
 function resize(): void {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  renderer.resize(width, height);
-  world.resize(width, height);
+  const worldSize = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+  renderer.resize(worldSize);
+  world.resize(worldSize);
 }
 
 function tick(): void {

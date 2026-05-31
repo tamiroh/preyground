@@ -2,6 +2,7 @@ import {
   Predator,
   type Animal,
 } from "./animal";
+import type { Size } from "./math";
 import type { Grass } from "./world";
 
 export type ChartPoint = {
@@ -23,14 +24,14 @@ export class CanvasRenderer {
     private readonly context: CanvasRenderingContext2D,
   ) {}
 
-  public resize(width: number, height: number): void {
+  public resize(worldSize: Size): void {
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    this.width = width;
-    this.height = height;
-    this.canvas.width = Math.floor(width * pixelRatio);
-    this.canvas.height = Math.floor(height * pixelRatio);
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
+    this.width = worldSize.width;
+    this.height = worldSize.height;
+    this.canvas.width = Math.floor(worldSize.width * pixelRatio);
+    this.canvas.height = Math.floor(worldSize.height * pixelRatio);
+    this.canvas.style.width = `${worldSize.width}px`;
+    this.canvas.style.height = `${worldSize.height}px`;
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 

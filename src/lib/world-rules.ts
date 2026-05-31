@@ -3,7 +3,7 @@ import {
   randomSigned,
   torusDistance,
 } from "./math";
-import type { Grass, World } from "./world";
+import type { Grass, World, WorldSize } from "./world";
 
 const EAT_DISTANCE = 8;
 const PREDATOR_ENERGY_PER_PREY = 9;
@@ -58,15 +58,15 @@ class GrassRegrowthRule implements WorldRule {
 
 class MovementRule implements WorldRule {
   public update(world: World, dt: number): void {
-    const size = world.size;
+    const worldSize = world.size;
     const animals = world.animals;
 
     for (const prey of world.prey) {
-      prey.move(world.predators, animals, dt, size.width, size.height);
+      prey.move(world.predators, animals, dt, worldSize);
     }
 
     for (const predator of world.predators) {
-      predator.move(world.prey, animals, dt, size.width, size.height);
+      predator.move(world.prey, animals, dt, worldSize);
     }
   }
 }
@@ -81,10 +81,10 @@ class PreyEnergyDecayRule implements WorldRule {
 
 class PreyGrazingRule implements WorldRule {
   public update(world: World): void {
-    const size = world.size;
+    const worldSize = world.size;
 
     for (const prey of world.prey) {
-      const grass = this.nearestEdibleGrass(prey, world.grass, size.width, size.height);
+      const grass = this.nearestEdibleGrass(prey, world.grass, worldSize);
       if (grass && world.eatGrass(grass)) {
         prey.energy = Math.min(PREY_MAX_ENERGY, prey.energy + PREY_ENERGY_PER_GRASS);
       }
@@ -94,14 +94,13 @@ class PreyGrazingRule implements WorldRule {
   private nearestEdibleGrass(
     prey: Prey,
     grasses: readonly Readonly<Grass>[],
-    width: number,
-    height: number,
+    worldSize: WorldSize,
   ): Readonly<Grass> | null {
     let targetGrass: Readonly<Grass> | null = null;
     let targetDistance = GRAZE_DISTANCE;
 
     for (const grass of grasses) {
-      const distance = torusDistance(prey.x, prey.y, grass.x, grass.y, width, height);
+      const distance = torusDistance(prey.x, prey.y, grass.x, grass.y, worldSize);
       if (distance < targetDistance) {
         targetGrass = grass;
         targetDistance = distance;
@@ -124,10 +123,10 @@ class PreyStarvationRule implements WorldRule {
 
 class PredationRule implements WorldRule {
   public update(world: World): void {
-    const size = world.size;
+    const worldSize = world.size;
 
     for (const predator of world.predators) {
-      const targetPrey = this.nearestEdiblePrey(predator, world.prey, size.width, size.height);
+      const targetPrey = this.nearestEdiblePrey(predator, world.prey, worldSize);
       if (targetPrey) {
         if (world.killPrey(targetPrey)) {
           predator.energy += PREDATOR_ENERGY_PER_PREY;
@@ -136,11 +135,11 @@ class PredationRule implements WorldRule {
     }
   }
 
-  private nearestEdiblePrey(predator: Predator, prey: readonly Prey[], width: number, height: number): Prey | null {
+  private nearestEdiblePrey(predator: Predator, prey: readonly Prey[], worldSize: WorldSize): Prey | null {
     let targetPrey: Prey | null = null;
     let targetDistance = EAT_DISTANCE;
     for (const candidate of prey) {
-      const distance = predator.distanceTo(candidate, width, height);
+      const distance = predator.distanceTo(candidate, worldSize);
       if (distance < targetDistance) {
         targetPrey = candidate;
         targetDistance = distance;

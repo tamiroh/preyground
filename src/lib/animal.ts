@@ -1,6 +1,7 @@
 import {
   randomSigned,
   torusDistance,
+  type Size,
 } from "./math";
 
 export type Steering = {
@@ -23,16 +24,16 @@ export abstract class Animal {
     public energy: number,
   ) {}
 
-  public wrap(width: number, height: number): void {
-    this.x = (this.x + width) % width;
-    this.y = (this.y + height) % height;
+  public wrap(worldSize: Size): void {
+    this.x = (this.x + worldSize.width) % worldSize.width;
+    this.y = (this.y + worldSize.height) % worldSize.height;
   }
 
-  public distanceTo(other: Animal, width: number, height: number): number {
-    return torusDistance(this.x, this.y, other.x, other.y, width, height);
+  public distanceTo(other: Animal, worldSize: Size): number {
+    return torusDistance(this.x, this.y, other.x, other.y, worldSize);
   }
 
-  protected applySteering(steering: Steering, speed: number, dt: number, width: number, height: number): void {
+  protected applySteering(steering: Steering, speed: number, dt: number, worldSize: Size): void {
     this.vx += steering.x * dt * 5;
     this.vy += steering.y * dt * 5;
     const length = Math.hypot(this.vx, this.vy) || 1;
@@ -40,7 +41,7 @@ export abstract class Animal {
     this.vy /= length;
     this.x += this.vx * speed * dt;
     this.y += this.vy * speed * dt;
-    this.wrap(width, height);
+    this.wrap(worldSize);
   }
 
   protected randomSteering(range: number): Steering {
@@ -50,7 +51,7 @@ export abstract class Animal {
     };
   }
 
-  protected potentialFrom(sources: readonly Animal[], radius: number, strength: number, width: number, height: number): Steering {
+  protected potentialFrom(sources: readonly Animal[], radius: number, strength: number, worldSize: Size): Steering {
     const steering = { x: 0, y: 0 };
 
     for (const source of sources) {
@@ -58,9 +59,9 @@ export abstract class Animal {
         continue;
       }
 
-      const distance = this.distanceTo(source, width, height);
+      const distance = this.distanceTo(source, worldSize);
       if (distance > 0 && distance < radius) {
-        const direction = this.directionTo(source, width, height);
+        const direction = this.directionTo(source, worldSize);
         const force = (1 - distance / radius) * strength;
         steering.x += direction.x * force;
         steering.y += direction.y * force;
@@ -70,11 +71,11 @@ export abstract class Animal {
     return steering;
   }
 
-  private directionTo(other: Animal, width: number, height: number): Steering {
+  private directionTo(other: Animal, worldSize: Size): Steering {
     let dx = other.x - this.x;
     let dy = other.y - this.y;
-    if (Math.abs(dx) > width / 2) dx -= Math.sign(dx) * width;
-    if (Math.abs(dy) > height / 2) dy -= Math.sign(dy) * height;
+    if (Math.abs(dx) > worldSize.width / 2) dx -= Math.sign(dx) * worldSize.width;
+    if (Math.abs(dy) > worldSize.height / 2) dy -= Math.sign(dy) * worldSize.height;
     const length = Math.hypot(dx, dy) || 1;
     return { x: dx / length, y: dy / length };
   }
@@ -86,12 +87,12 @@ export class Prey extends Animal {
   private static readonly SPEED = 42;
   private static readonly WANDER_RANGE = 0.35;
 
-  public static create(id: number, width: number, height: number, x?: number, y?: number): Prey {
+  public static create(id: number, worldSize: Size, x?: number, y?: number): Prey {
     const angle = Math.random() * Math.PI * 2;
     return new Prey(
       id,
-      x ?? Math.random() * width,
-      y ?? Math.random() * height,
+      x ?? Math.random() * worldSize.width,
+      y ?? Math.random() * worldSize.height,
       Math.cos(angle),
       Math.sin(angle),
       5,
@@ -102,15 +103,15 @@ export class Prey extends Animal {
     super(id, x, y, vx, vy, energy);
   }
 
-  public move(predatorsInView: readonly Predator[], neighbors: readonly Animal[], dt: number, width: number, height: number): void {
+  public move(predatorsInView: readonly Predator[], neighbors: readonly Animal[], dt: number, worldSize: Size): void {
     const steering = this.randomSteering(Prey.WANDER_RANGE);
-    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, width, height);
-    const escape = this.potentialFrom(predatorsInView, Prey.SENSE, -Prey.ESCAPE_STRENGTH, width, height);
+    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, worldSize);
+    const escape = this.potentialFrom(predatorsInView, Prey.SENSE, -Prey.ESCAPE_STRENGTH, worldSize);
     steering.x += avoidance.x;
     steering.y += avoidance.y;
     steering.x += escape.x;
     steering.y += escape.y;
-    this.applySteering(steering, Prey.SPEED, dt, width, height);
+    this.applySteering(steering, Prey.SPEED, dt, worldSize);
   }
 }
 
@@ -120,12 +121,12 @@ export class Predator extends Animal {
   private static readonly SPEED = 58;
   private static readonly WANDER_RANGE = 0.25;
 
-  public static create(id: number, width: number, height: number, x?: number, y?: number): Predator {
+  public static create(id: number, worldSize: Size, x?: number, y?: number): Predator {
     const angle = Math.random() * Math.PI * 2;
     return new Predator(
       id,
-      x ?? Math.random() * width,
-      y ?? Math.random() * height,
+      x ?? Math.random() * worldSize.width,
+      y ?? Math.random() * worldSize.height,
       Math.cos(angle),
       Math.sin(angle),
       18 + Math.random() * 8,
@@ -136,14 +137,14 @@ export class Predator extends Animal {
     super(id, x, y, vx, vy, energy);
   }
 
-  public move(preyInView: readonly Prey[], neighbors: readonly Animal[], dt: number, width: number, height: number): void {
+  public move(preyInView: readonly Prey[], neighbors: readonly Animal[], dt: number, worldSize: Size): void {
     const steering = this.randomSteering(Predator.WANDER_RANGE);
-    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, width, height);
-    const chase = this.potentialFrom(preyInView, Predator.SENSE, Predator.CHASE_STRENGTH, width, height);
+    const avoidance = this.potentialFrom(neighbors, COLLISION_AVOIDANCE_DISTANCE, -COLLISION_AVOIDANCE_STRENGTH, worldSize);
+    const chase = this.potentialFrom(preyInView, Predator.SENSE, Predator.CHASE_STRENGTH, worldSize);
     steering.x += avoidance.x;
     steering.y += avoidance.y;
     steering.x += chase.x;
     steering.y += chase.y;
-    this.applySteering(steering, Predator.SPEED, dt, width, height);
+    this.applySteering(steering, Predator.SPEED, dt, worldSize);
   }
 }
