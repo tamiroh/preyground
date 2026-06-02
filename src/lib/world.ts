@@ -126,8 +126,8 @@ export class World {
     this.predatorAnimals.push(this.createPredator(x, y));
   }
 
-  public spawnGrass(): void {
-    this.grasses.push(this.createGrass());
+  public spawnGrass(x?: number, y?: number): void {
+    this.grasses.push(this.createGrass(x, y));
   }
 
   public eatGrass(grass: Readonly<Grass>): boolean {
@@ -168,11 +168,11 @@ export class World {
     return Predator.create(this.nextId++, this.worldSize, x, y);
   }
 
-  private createGrass(): Grass {
+  private createGrass(x = Math.random() * this.worldSize.width, y = Math.random() * this.worldSize.height): Grass {
     return {
       id: this.nextGrassId++,
-      x: Math.random() * this.worldSize.width,
-      y: Math.random() * this.worldSize.height,
+      x: (x + this.worldSize.width) % this.worldSize.width,
+      y: (y + this.worldSize.height) % this.worldSize.height,
     };
   }
 }

@@ -8,6 +8,8 @@ import type { Grass, World, WorldSize } from "./world.ts";
 const EAT_DISTANCE = 8;
 const PREDATOR_ENERGY_PER_PREY = 9;
 const GRAZE_DISTANCE = 10;
+const GRASS_PATCH_REGROW_CHANCE = 0.78;
+const GRASS_PATCH_SPREAD = 42;
 const GRASS_REGROW_RATE = 5.5;
 const MAX_GRASS_COUNT = 260;
 const PREY_ENERGY_DECAY_RATE = 0.42;
@@ -56,8 +58,21 @@ class AgingRule implements WorldRule {
 class GrassRegrowthRule implements WorldRule {
   public update(world: World, dt: number): void {
     if (world.grass.length < MAX_GRASS_COUNT && Math.random() < GRASS_REGROW_RATE * dt) {
-      world.spawnGrass();
+      this.spawnGrass(world);
     }
+  }
+
+  private spawnGrass(world: World): void {
+    if (world.grass.length === 0 || Math.random() > GRASS_PATCH_REGROW_CHANCE) {
+      world.spawnGrass();
+      return;
+    }
+
+    const parent = world.grass[Math.floor(Math.random() * world.grass.length)];
+    world.spawnGrass(
+      parent.x + randomSigned(GRASS_PATCH_SPREAD),
+      parent.y + randomSigned(GRASS_PATCH_SPREAD),
+    );
   }
 }
 
