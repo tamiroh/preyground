@@ -5,6 +5,13 @@ import {
 import type { Size } from "./math.ts";
 import type { Grass } from "./world.ts";
 
+const MAX_ENERGY_SIZE_SCALE = 1.55;
+const MIN_ENERGY_SIZE_SCALE = 0.68;
+const PREDATOR_BASE_RADIUS = 5.3;
+const PREDATOR_FULL_SIZE_ENERGY = 32;
+const PREY_BASE_RADIUS = 3.4;
+const PREY_FULL_SIZE_ENERGY = 9;
+
 export type ChartPoint = {
   time: number;
   value: number;
@@ -82,7 +89,7 @@ export class CanvasRenderer {
 
   private drawAnimal(animal: Animal): void {
     const predator = animal instanceof Predator;
-    const radius = predator ? 6.5 : 3.8;
+    const radius = this.animalRadius(animal, predator);
     const angle = Math.atan2(animal.vy, animal.vx);
 
     this.context.save();
@@ -100,6 +107,16 @@ export class CanvasRenderer {
     this.context.fill();
     this.context.stroke();
     this.context.restore();
+  }
+
+  private animalRadius(animal: Animal, predator: boolean): number {
+    return (predator ? PREDATOR_BASE_RADIUS : PREY_BASE_RADIUS)
+      * this.energySizeScale(animal.energy, predator ? PREDATOR_FULL_SIZE_ENERGY : PREY_FULL_SIZE_ENERGY);
+  }
+
+  private energySizeScale(energy: number, fullSizeEnergy: number): number {
+    return MIN_ENERGY_SIZE_SCALE
+      + Math.min(1, Math.max(0, energy / fullSizeEnergy)) * (MAX_ENERGY_SIZE_SCALE - MIN_ENERGY_SIZE_SCALE);
   }
 
   private drawPopulationChart(history: PopulationHistory): void {
