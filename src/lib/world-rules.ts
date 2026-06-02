@@ -67,7 +67,7 @@ class MovementRule implements WorldRule {
     const animals = world.animals;
 
     for (const prey of world.prey) {
-      prey.move(world.predators, animals, dt, worldSize);
+      prey.move(world.predators, animals, world.grass, dt, worldSize);
     }
 
     for (const predator of world.predators) {
