@@ -54,20 +54,17 @@ export class CanvasRenderer {
   }
 
   private drawGrass(grass: Readonly<Grass>): void {
-    this.context.fillStyle = "rgb(92 176 91 / 0.5)";
+    this.context.fillStyle = "rgb(126 151 95 / 0.42)";
     this.context.beginPath();
     this.context.arc(grass.x, grass.y, 2.8, 0, Math.PI * 2);
     this.context.fill();
   }
 
   private drawBackground(): void {
-    const gradient = this.context.createLinearGradient(0, 0, 0, this.height);
-    gradient.addColorStop(0, "#13201f");
-    gradient.addColorStop(1, "#1d2f29");
-    this.context.fillStyle = gradient;
+    this.context.fillStyle = "#151814";
     this.context.fillRect(0, 0, this.width, this.height);
 
-    this.context.strokeStyle = "rgb(255 255 255 / 0.06)";
+    this.context.strokeStyle = "rgb(231 233 230 / 0.055)";
     this.context.lineWidth = 1;
     for (let x = 0; x < this.width; x += 48) {
       this.context.beginPath();
@@ -91,8 +88,8 @@ export class CanvasRenderer {
     this.context.save();
     this.context.translate(animal.x, animal.y);
     this.context.rotate(angle);
-    this.context.fillStyle = predator ? "#ef767a" : "#8ee6a8";
-    this.context.strokeStyle = predator ? "rgb(255 230 230 / 0.78)" : "rgb(225 255 232 / 0.72)";
+    this.context.fillStyle = predator ? "#c78376" : "#9fbd8e";
+    this.context.strokeStyle = predator ? "rgb(238 215 207 / 0.72)" : "rgb(226 234 216 / 0.66)";
     this.context.lineWidth = 1.4;
     this.context.beginPath();
     this.context.moveTo(radius * 1.5, 0);
@@ -115,20 +112,20 @@ export class CanvasRenderer {
     const plotHeight = chartHeight - padding * 1.7;
 
     this.context.save();
-    this.context.fillStyle = "rgb(16 22 21 / 0.84)";
-    this.context.strokeStyle = "rgb(255 255 255 / 0.16)";
+    this.context.fillStyle = "rgb(21 24 20 / 0.92)";
+    this.context.strokeStyle = "rgb(231 233 230 / 0.14)";
     this.context.lineWidth = 1;
     this.context.beginPath();
     this.context.roundRect(left, top, chartWidth, chartHeight, 8);
     this.context.fill();
     this.context.stroke();
 
-    this.context.fillStyle = "#eef3f6";
+    this.context.fillStyle = "#e7e9e6";
     this.context.font = "600 13px ui-sans-serif, system-ui";
     this.context.fillText("Population over time", left + 14, top + 24);
 
     if (history.prey.length < 2 || history.predators.length < 2) {
-      this.context.fillStyle = "rgb(238 243 246 / 0.65)";
+      this.context.fillStyle = "rgb(231 233 230 / 0.62)";
       this.context.font = "12px ui-sans-serif, system-ui";
       this.context.fillText("Collecting data...", left + 14, top + 50);
       this.context.restore();
@@ -151,25 +148,25 @@ export class CanvasRenderer {
     const plotTop = top + 48;
     const plotBottom = plotTop + plotHeight;
 
-    this.context.strokeStyle = "rgb(255 255 255 / 0.12)";
+    this.context.strokeStyle = "rgb(231 233 230 / 0.12)";
     this.context.beginPath();
     this.context.moveTo(plotLeft, plotTop);
     this.context.lineTo(plotLeft, plotBottom);
     this.context.lineTo(plotLeft + plotWidth, plotBottom);
     this.context.stroke();
 
-    this.drawChartLine(sampledPreyHistory, "#8ee6a8", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
-    this.drawChartLine(sampledPredatorHistory, "#ef767a", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPreyHistory, "#9fbd8e", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPredatorHistory, "#c78376", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
 
     const latestPrey = history.prey[history.prey.length - 1];
     const latestPredators = history.predators[history.predators.length - 1];
-    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
+    this.context.fillStyle = "rgb(231 233 230 / 0.68)";
     this.context.font = "12px ui-sans-serif, system-ui";
-    this.context.fillStyle = "#8ee6a8";
+    this.context.fillStyle = "#9fbd8e";
     this.context.fillText(`prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
-    this.context.fillStyle = "#ef767a";
+    this.context.fillStyle = "#c78376";
     this.context.fillText(`predators ${latestPredators.value}`, plotLeft + 82, plotBottom + 22);
-    this.context.fillStyle = "rgb(238 243 246 / 0.7)";
+    this.context.fillStyle = "rgb(231 233 230 / 0.68)";
     this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
     this.context.restore();
   }
