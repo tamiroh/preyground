@@ -61,17 +61,17 @@ export class CanvasRenderer {
   }
 
   private drawGrass(grass: Readonly<Grass>): void {
-    this.context.fillStyle = "rgb(126 151 95 / 0.42)";
+    this.context.fillStyle = "rgb(150 150 150 / 0.34)";
     this.context.beginPath();
     this.context.arc(grass.x, grass.y, 2.8, 0, Math.PI * 2);
     this.context.fill();
   }
 
   private drawBackground(): void {
-    this.context.fillStyle = "#151814";
+    this.context.fillStyle = "#161616";
     this.context.fillRect(0, 0, this.width, this.height);
 
-    this.context.strokeStyle = "rgb(231 233 230 / 0.055)";
+    this.context.strokeStyle = "rgb(232 232 232 / 0.055)";
     this.context.lineWidth = 1;
     for (let x = 0; x < this.width; x += 48) {
       this.context.beginPath();
@@ -129,20 +129,20 @@ export class CanvasRenderer {
     const plotHeight = chartHeight - padding * 1.7;
 
     this.context.save();
-    this.context.fillStyle = "rgb(21 24 20 / 0.92)";
-    this.context.strokeStyle = "rgb(231 233 230 / 0.14)";
+    this.context.fillStyle = "rgb(22 22 22 / 0.92)";
+    this.context.strokeStyle = "rgb(232 232 232 / 0.14)";
     this.context.lineWidth = 1;
     this.context.beginPath();
     this.context.roundRect(left, top, chartWidth, chartHeight, 8);
     this.context.fill();
     this.context.stroke();
 
-    this.context.fillStyle = "#e7e9e6";
+    this.context.fillStyle = "#e8e8e8";
     this.context.font = "600 13px ui-sans-serif, system-ui";
     this.context.fillText("Population over time", left + 14, top + 24);
 
     if (history.prey.length < 2 || history.predators.length < 2) {
-      this.context.fillStyle = "rgb(231 233 230 / 0.62)";
+      this.context.fillStyle = "rgb(232 232 232 / 0.62)";
       this.context.font = "12px ui-sans-serif, system-ui";
       this.context.fillText("Collecting data...", left + 14, top + 50);
       this.context.restore();
@@ -165,25 +165,25 @@ export class CanvasRenderer {
     const plotTop = top + 48;
     const plotBottom = plotTop + plotHeight;
 
-    this.context.strokeStyle = "rgb(231 233 230 / 0.12)";
+    this.context.strokeStyle = "rgb(232 232 232 / 0.12)";
     this.context.beginPath();
     this.context.moveTo(plotLeft, plotTop);
     this.context.lineTo(plotLeft, plotBottom);
     this.context.lineTo(plotLeft + plotWidth, plotBottom);
     this.context.stroke();
 
-    this.drawChartLine(sampledPreyHistory, "#9fbd8e", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
-    this.drawChartLine(sampledPredatorHistory, "#c78376", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPreyHistory, "#858585", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPredatorHistory, "#b8b8b8", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
 
     const latestPrey = history.prey[history.prey.length - 1];
     const latestPredators = history.predators[history.predators.length - 1];
-    this.context.fillStyle = "rgb(231 233 230 / 0.68)";
+    this.context.fillStyle = "rgb(232 232 232 / 0.68)";
     this.context.font = "12px ui-sans-serif, system-ui";
-    this.context.fillStyle = "#9fbd8e";
+    this.context.fillStyle = "#858585";
     this.context.fillText(`prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
-    this.context.fillStyle = "#c78376";
+    this.context.fillStyle = "#b8b8b8";
     this.context.fillText(`predators ${latestPredators.value}`, plotLeft + 82, plotBottom + 22);
-    this.context.fillStyle = "rgb(231 233 230 / 0.68)";
+    this.context.fillStyle = "rgb(232 232 232 / 0.68)";
     this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
     this.context.restore();
   }
