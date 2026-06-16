@@ -1,11 +1,21 @@
 :root {
-  color: #e8e8e8;
-  background: #161616;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  --bg: #111113;
+  --surface: #1a1a1f;
+  --surface-hover: #242430;
+  --border: rgb(255 255 255 / 0.08);
+  --border-strong: rgb(255 255 255 / 0.13);
+  --text: #e8e8ec;
+  --muted: #8b8b99;
+  --prey: #2dd4bf;
+  --predator: #fb923c;
+
+  color: var(--text);
+  background: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -27,7 +37,7 @@ input {
 #app {
   position: fixed;
   inset: 0;
-  background: #161616;
+  background: var(--bg);
 }
 
 #world {
@@ -38,116 +48,120 @@ input {
 
 .panel {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 16px;
+  right: 16px;
   width: min(256px, calc(100vw - 24px));
-  max-height: calc(100vh - 28px);
+  max-height: calc(100vh - 32px);
   overflow: auto;
-  padding: 11px;
-  border: 1px solid rgb(232 232 232 / 14%);
-  border-radius: 6px;
-  background: rgb(22 22 22 / 92%);
-  box-shadow: 0 10px 28px rgb(0 0 0 / 22%);
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgb(16 16 20 / 0.94);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(20px);
 }
 
 .eyebrow {
-  margin: 0 0 6px;
-  color: #c7c7c7;
+  margin: 0 0 14px;
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0;
-  font-size: 24px;
-  line-height: 1.18;
-  letter-spacing: 0;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  margin-bottom: 11px;
-  border: 1px solid rgb(232 232 232 / 11%);
-  border-radius: 6px;
-  overflow: hidden;
-  background: rgb(232 232 232 / 11%);
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .stats-grid div {
-  min-height: 51px;
-  padding: 8px;
-  border: 0;
-  border-radius: 0;
-  background: rgb(27 27 27 / 96%);
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
 }
 
 .stat-button {
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.stat-button:hover,
+.stat-button:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
 .stat-button.is-active {
-  background: rgb(78 78 78 / 66%);
+  background: rgb(251 146 60 / 0.1);
+  border-color: rgb(251 146 60 / 0.35);
 }
 
 .stat-button:focus-visible {
-  outline: 2px solid #bababa;
+  outline: 2px solid var(--predator);
   outline-offset: 2px;
 }
 
 .stats-grid span,
 label span {
   display: block;
-  color: #ababab;
+  color: var(--muted);
   font-size: 11px;
+  font-weight: 500;
   line-height: 1.3;
 }
 
 .stats-grid strong {
   display: block;
-  margin-top: 5px;
-  color: #f1f1f1;
-  font-size: 19px;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-bottom: 13px;
+  margin-bottom: 16px;
 }
 
 button {
-  min-height: 31px;
-  border: 1px solid rgb(232 232 232 / 14%);
-  border-radius: 5px;
-  color: #f1f1f1;
-  background: #343434;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 button:hover {
-  background: #494949;
+  background: var(--surface-hover);
+  border-color: rgb(255 255 255 / 0.2);
 }
 
 button:focus-visible {
-  outline: 2px solid #bababa;
+  outline: 2px solid var(--prey);
   outline-offset: 2px;
 }
 
 label {
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 input[type="range"] {
   width: 100%;
-  accent-color: #b2b2b2;
+  margin-top: 6px;
+  accent-color: var(--prey);
 }
 
 @media (max-width: 720px) {
@@ -157,24 +171,21 @@ input[type="range"] {
     bottom: 10px;
     left: 10px;
     width: auto;
-    max-height: 38vh;
-    padding: 11px;
-  }
-
-  h1 {
-    font-size: 20px;
+    max-height: 40vh;
+    padding: 14px;
   }
 
   .stats-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .stats-grid div {
     min-height: 48px;
-    padding: 7px;
+    padding: 8px 10px;
   }
 
   .stats-grid strong {
-    font-size: 16px;
+    font-size: 17px;
   }
 }
