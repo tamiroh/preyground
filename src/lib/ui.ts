@@ -16,12 +16,17 @@ type UiElements = {
   preyCount: HTMLElement | null;
   predatorCount: HTMLElement | null;
   predatorStat: HTMLElement | null;
+  plotCap: HTMLElement | null;
   killedPreyCount: HTMLElement | null;
   toggleRun: HTMLButtonElement | null;
+  toggleRunLabel: HTMLElement | null;
   reset: HTMLButtonElement | null;
   speed: HTMLInputElement | null;
+  speedVal: HTMLElement | null;
   preyBirth: HTMLInputElement | null;
+  preyBirthVal: HTMLElement | null;
   predatorHunger: HTMLInputElement | null;
+  predatorHungerVal: HTMLElement | null;
 };
 
 export class SimulationUi {
@@ -30,13 +35,24 @@ export class SimulationUi {
     preyCount: document.querySelector<HTMLElement>("#preyCount"),
     predatorCount: document.querySelector<HTMLElement>("#predatorCount"),
     predatorStat: document.querySelector<HTMLElement>("#predatorStat"),
+    plotCap: document.querySelector<HTMLElement>("#predatorStat .plot-cap"),
     killedPreyCount: document.querySelector<HTMLElement>("#killedPreyCount"),
     toggleRun: document.querySelector<HTMLButtonElement>("#toggleRun"),
+    toggleRunLabel: document.querySelector<HTMLElement>("#toggleRun .btn-label"),
     reset: document.querySelector<HTMLButtonElement>("#reset"),
     speed: document.querySelector<HTMLInputElement>("#speed"),
+    speedVal: document.querySelector<HTMLElement>("#speedVal"),
     preyBirth: document.querySelector<HTMLInputElement>("#preyBirth"),
+    preyBirthVal: document.querySelector<HTMLElement>("#preyBirthVal"),
     predatorHunger: document.querySelector<HTMLInputElement>("#predatorHunger"),
+    predatorHungerVal: document.querySelector<HTMLElement>("#predatorHungerVal"),
   };
+
+  public constructor() {
+    this.bindSlider(this.elements.speed, this.elements.speedVal, (value) => `×${value}`);
+    this.bindSlider(this.elements.preyBirth, this.elements.preyBirthVal, formatRate);
+    this.bindSlider(this.elements.predatorHunger, this.elements.predatorHungerVal, (value) => String(value));
+  }
 
   public getSpeed(): number {
     return Number(this.elements.speed?.value ?? 2);
@@ -50,8 +66,8 @@ export class SimulationUi {
   }
 
   public setRunning(running: boolean): void {
-    if (this.elements.toggleRun) {
-      this.elements.toggleRun.textContent = running ? "Pause" : "Resume";
+    if (this.elements.toggleRunLabel) {
+      this.elements.toggleRunLabel.textContent = running ? "Pause" : "Resume";
     }
   }
 
@@ -81,7 +97,39 @@ export class SimulationUi {
   }
 
   public setPredatorChartVisible(visible: boolean): void {
-    this.elements.predatorStat?.classList.toggle("is-active", visible);
+    this.elements.predatorStat?.classList.toggle("is-open", visible);
     this.elements.predatorStat?.setAttribute("aria-pressed", String(visible));
+    if (this.elements.plotCap) {
+      this.elements.plotCap.textContent = visible ? "hide population plot" : "plot population";
+    }
   }
+
+  private bindSlider(
+    input: HTMLInputElement | null,
+    output: HTMLElement | null,
+    format: (value: number) => string,
+  ): void {
+    if (!input) {
+      return;
+    }
+    const sync = (): void => {
+      const value = Number(input.value);
+      const min = Number(input.min);
+      const max = Number(input.max);
+      const filled = max > min ? ((value - min) / (max - min)) * 100 : 0;
+      input.style.setProperty("--fill", `${filled}%`);
+      if (output) {
+        output.textContent = format(value);
+      }
+    };
+    input.addEventListener("input", sync);
+    sync();
+  }
+}
+
+function formatRate(value: number): string {
+  return value
+    .toFixed(3)
+    .replace(/0+$/, "")
+    .replace(/\.$/, "");
 }

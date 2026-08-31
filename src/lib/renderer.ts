@@ -49,9 +49,7 @@ export class CanvasRenderer {
   ): void {
     this.context.clearRect(0, 0, this.width, this.height);
     this.drawBackground();
-    for (const grass of grasses) {
-      this.drawGrass(grass);
-    }
+    this.drawGrasses(grasses);
     for (const animal of animals) {
       this.drawAnimal(animal);
     }
@@ -60,26 +58,98 @@ export class CanvasRenderer {
     }
   }
 
-  private drawGrass(grass: Readonly<Grass>): void {
-    this.context.fillStyle = "rgb(45 212 191 / 0.16)";
+  private drawGrasses(grasses: readonly Readonly<Grass>[]): void {
+    this.context.strokeStyle = "rgb(140 190 160 / 0.28)";
+    this.context.lineWidth = 1;
     this.context.beginPath();
-    this.context.arc(grass.x, grass.y, 2.6, 0, Math.PI * 2);
-    this.context.fill();
+    for (const grass of grasses) {
+      this.context.moveTo(grass.x - 1.6, grass.y);
+      this.context.lineTo(grass.x + 1.6, grass.y);
+      this.context.moveTo(grass.x, grass.y - 1.6);
+      this.context.lineTo(grass.x, grass.y + 1.6);
+    }
+    this.context.stroke();
   }
 
   private drawBackground(): void {
-    this.context.fillStyle = "#111113";
-    this.context.fillRect(0, 0, this.width, this.height);
+    const { width, height } = this;
+    const centerX = width * 0.45;
+    const centerY = height * 0.4;
 
-    this.context.fillStyle = "rgb(255 255 255 / 0.05)";
+    const vignette = this.context.createRadialGradient(
+      centerX,
+      centerY,
+      0,
+      centerX,
+      centerY,
+      Math.max(width, height) * 0.8,
+    );
+    vignette.addColorStop(0, "#191c26");
+    vignette.addColorStop(0.5, "#101218");
+    vignette.addColorStop(1, "#090a0d");
+    this.context.fillStyle = vignette;
+    this.context.fillRect(0, 0, width, height);
+
+    this.context.lineWidth = 1;
+
+    this.context.strokeStyle = "rgb(234 229 219 / 0.045)";
     this.context.beginPath();
-    for (let x = 40; x < this.width; x += 40) {
-      for (let y = 40; y < this.height; y += 40) {
-        this.context.moveTo(x + 0.8, y);
-        this.context.arc(x, y, 0.8, 0, Math.PI * 2);
-      }
+    for (let x = 60; x < width; x += 60) {
+      this.context.moveTo(x, 0);
+      this.context.lineTo(x, height);
     }
-    this.context.fill();
+    for (let y = 60; y < height; y += 60) {
+      this.context.moveTo(0, y);
+      this.context.lineTo(width, y);
+    }
+    this.context.stroke();
+
+    this.context.strokeStyle = "rgb(234 229 219 / 0.05)";
+    for (const radius of [width * 0.2, width * 0.34]) {
+      this.context.beginPath();
+      this.context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      this.context.stroke();
+    }
+
+    this.context.strokeStyle = "rgb(234 229 219 / 0.09)";
+    this.context.beginPath();
+    this.context.moveTo(centerX, 0);
+    this.context.lineTo(centerX, height);
+    this.context.moveTo(0, centerY);
+    this.context.lineTo(width, centerY);
+    this.context.stroke();
+
+    this.drawCornerBrackets();
+
+    this.context.strokeStyle = "rgb(234 229 219 / 0.12)";
+    this.context.beginPath();
+    for (let i = 0, x = 80; x < width - 40; i += 1, x += 40) {
+      this.context.moveTo(x, 24);
+      this.context.lineTo(x, i % 5 === 0 ? 34 : 29);
+    }
+    this.context.stroke();
+  }
+
+  private drawCornerBrackets(): void {
+    const margin = 24;
+    const arm = 42;
+    const { width: w, height: h } = this;
+    this.context.strokeStyle = "rgb(234 229 219 / 0.22)";
+    this.context.lineWidth = 1.2;
+    this.context.beginPath();
+    this.context.moveTo(margin, margin + arm);
+    this.context.lineTo(margin, margin);
+    this.context.lineTo(margin + arm, margin);
+    this.context.moveTo(w - margin - arm, margin);
+    this.context.lineTo(w - margin, margin);
+    this.context.lineTo(w - margin, margin + arm);
+    this.context.moveTo(margin, h - margin - arm);
+    this.context.lineTo(margin, h - margin);
+    this.context.lineTo(margin + arm, h - margin);
+    this.context.moveTo(w - margin - arm, h - margin);
+    this.context.lineTo(w - margin, h - margin);
+    this.context.lineTo(w - margin, h - margin - arm);
+    this.context.stroke();
   }
 
   private drawAnimal(animal: Animal): void {
@@ -90,19 +160,28 @@ export class CanvasRenderer {
     this.context.save();
     this.context.translate(animal.x, animal.y);
     this.context.rotate(angle);
-    this.context.shadowBlur = predator ? 10 : 7;
-    this.context.shadowColor = predator ? "rgb(251 146 60 / 0.65)" : "rgb(45 212 191 / 0.55)";
-    this.context.fillStyle = predator ? "#fb923c" : "#2dd4bf";
-    this.context.strokeStyle = predator ? "rgb(253 186 116 / 0.55)" : "rgb(94 234 212 / 0.5)";
-    this.context.lineWidth = 1.2;
-    this.context.beginPath();
-    this.context.moveTo(radius * 1.5, 0);
-    this.context.lineTo(-radius, radius * 0.8);
-    this.context.lineTo(-radius * 0.65, 0);
-    this.context.lineTo(-radius, -radius * 0.8);
-    this.context.closePath();
-    this.context.fill();
-    this.context.stroke();
+
+    if (predator) {
+      this.context.fillStyle = "#e58d54";
+      this.context.strokeStyle = "rgb(201 123 71 / 0.9)";
+      this.context.lineWidth = 0.8;
+      this.context.beginPath();
+      this.context.moveTo(radius * 1.6, 0);
+      this.context.lineTo(-radius, radius * 0.9);
+      this.context.lineTo(-radius * 0.55, 0);
+      this.context.lineTo(-radius, -radius * 0.9);
+      this.context.closePath();
+      this.context.fill();
+      this.context.stroke();
+    } else {
+      this.context.strokeStyle = "#6fd8ba";
+      this.context.lineWidth = 1.5;
+      this.context.beginPath();
+      this.context.arc(0, 0, radius, 0, Math.PI * 2);
+      this.context.moveTo(radius * 1.3, 0);
+      this.context.lineTo(radius * 2.4, 0);
+      this.context.stroke();
+    }
     this.context.restore();
   }
 
@@ -126,22 +205,22 @@ export class CanvasRenderer {
     const plotHeight = chartHeight - padding * 1.7;
 
     this.context.save();
-    this.context.fillStyle = "rgb(10 10 14 / 0.96)";
-    this.context.strokeStyle = "rgb(255 255 255 / 0.09)";
+    this.context.fillStyle = "rgb(18 20 26 / 0.96)";
+    this.context.strokeStyle = "rgb(234 229 219 / 0.17)";
     this.context.lineWidth = 1;
     this.context.beginPath();
-    this.context.roundRect(left, top, chartWidth, chartHeight, 4);
+    this.context.roundRect(left, top, chartWidth, chartHeight, 2);
     this.context.fill();
     this.context.stroke();
 
-    this.context.fillStyle = "#e8e8ec";
-    this.context.font = "600 13px ui-sans-serif, system-ui, sans-serif";
-    this.context.fillText("Population over time", left + 14, top + 24);
+    this.context.fillStyle = "#e9e4da";
+    this.context.font = 'italic 500 14px "Newsreader", Georgia, serif';
+    this.context.fillText("Fig. 1 — Population over time", left + 16, top + 25);
 
     if (history.prey.length < 2 || history.predators.length < 2) {
-      this.context.fillStyle = "rgb(255 255 255 / 0.32)";
-      this.context.font = "12px ui-sans-serif, system-ui, sans-serif";
-      this.context.fillText("Collecting data...", left + 14, top + 50);
+      this.context.fillStyle = "rgb(234 229 219 / 0.3)";
+      this.context.font = '12px "IBM Plex Mono", ui-monospace, monospace';
+      this.context.fillText("collecting data…", left + 16, top + 50);
       this.context.restore();
       return;
     }
@@ -162,24 +241,26 @@ export class CanvasRenderer {
     const plotTop = top + 48;
     const plotBottom = plotTop + plotHeight;
 
-    this.context.strokeStyle = "rgb(255 255 255 / 0.09)";
+    this.context.strokeStyle = "rgb(234 229 219 / 0.2)";
     this.context.beginPath();
     this.context.moveTo(plotLeft, plotTop);
     this.context.lineTo(plotLeft, plotBottom);
     this.context.lineTo(plotLeft + plotWidth, plotBottom);
     this.context.stroke();
 
-    this.drawChartLine(sampledPreyHistory, "#2dd4bf", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
-    this.drawChartLine(sampledPredatorHistory, "#fb923c", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.drawChartLine(sampledPreyHistory, "#6fd8ba", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.context.setLineDash([4, 3]);
+    this.drawChartLine(sampledPredatorHistory, "#e58d54", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
+    this.context.setLineDash([]);
 
     const latestPrey = history.prey[history.prey.length - 1];
     const latestPredators = history.predators[history.predators.length - 1];
-    this.context.font = "12px ui-sans-serif, system-ui, sans-serif";
-    this.context.fillStyle = "#2dd4bf";
-    this.context.fillText(`Prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
-    this.context.fillStyle = "#fb923c";
-    this.context.fillText(`Predators ${latestPredators.value}`, plotLeft + 72, plotBottom + 22);
-    this.context.fillStyle = "rgb(255 255 255 / 0.35)";
+    this.context.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    this.context.fillStyle = "#6fd8ba";
+    this.context.fillText(`prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
+    this.context.fillStyle = "#e58d54";
+    this.context.fillText(`predators ${latestPredators.value}`, plotLeft + 74, plotBottom + 22);
+    this.context.fillStyle = "rgb(234 229 219 / 0.35)";
     this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
     this.context.restore();
   }

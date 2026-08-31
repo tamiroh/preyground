@@ -4,49 +4,130 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>preyground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap"
+    />
   </head>
   <body>
     <main id="app">
       <canvas id="world" aria-label="predator prey simulation"></canvas>
-      <aside class="panel">
-        <section class="stats-grid" aria-label="simulation stats">
-          <div>
-            <span>Time</span>
-            <strong id="time">0</strong>
+      <aside class="log" aria-label="observation log">
+        <header class="log-head">
+          <span class="log-title">Observation Log</span>
+          <span class="log-clock">t&nbsp;<strong id="time">0</strong></span>
+        </header>
+
+        <section class="block">
+          <h2 class="block-label">Census</h2>
+          <dl class="census">
+            <div class="row">
+              <span class="row-ic" aria-hidden="true">
+                <svg width="13" height="13" viewBox="-9 -9 18 18">
+                  <g stroke="#74e0c0" stroke-width="1.6" fill="none">
+                    <circle r="3.5" />
+                    <path d="M3.5 0h4.2" />
+                  </g>
+                </svg>
+              </span>
+              <dt>Prey</dt>
+              <span class="leader"></span>
+              <dd class="val val-prey" id="preyCount">0</dd>
+            </div>
+
+            <div
+              class="row plot"
+              id="predatorStat"
+              role="button"
+              tabindex="0"
+              aria-pressed="false"
+            >
+              <div class="plot-main">
+                <span class="row-ic" aria-hidden="true">
+                  <svg width="13" height="13" viewBox="-9 -9 18 18">
+                    <path d="M8 0L-6 5 -2.6 0 -6 -5Z" fill="#ef9d63" />
+                  </svg>
+                </span>
+                <dt>Predators</dt>
+                <span class="leader"></span>
+                <dd class="val val-pred" id="predatorCount">0</dd>
+              </div>
+              <div class="plot-cap">plot population</div>
+            </div>
+
+            <div class="row">
+              <span class="row-ic" aria-hidden="true"></span>
+              <dt>Prey taken</dt>
+              <span class="leader"></span>
+              <dd class="val" id="killedPreyCount">0</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="block">
+          <h2 class="block-label">Observed parameters</h2>
+
+          <div class="param">
+            <div class="param-top">
+              <label for="speed">Tempo</label>
+              <output id="speedVal" for="speed">&times;2</output>
+            </div>
+            <div class="param-track">
+              <input id="speed" type="range" min="1" max="8" step="1" value="2" />
+            </div>
+            <p class="param-note">simulation steps per rendered frame</p>
           </div>
-          <div>
-            <span>Prey</span>
-            <strong id="preyCount">0</strong>
+
+          <div class="param">
+            <div class="param-top">
+              <label for="preyBirth">Prey natality</label>
+              <output id="preyBirthVal" for="preyBirth">0.025</output>
+            </div>
+            <div class="param-track">
+              <input id="preyBirth" type="range" min="0" max="0.08" step="0.002" value="0.025" />
+            </div>
+            <p class="param-note">birth probability per prey each tick</p>
           </div>
-          <div id="predatorStat" class="stat-button" role="button" tabindex="0" aria-pressed="false">
-            <span>Predators</span>
-            <strong id="predatorCount">0</strong>
-          </div>
-          <div>
-            <span>Killed prey</span>
-            <strong id="killedPreyCount">0</strong>
+
+          <div class="param">
+            <div class="param-top">
+              <label for="predatorHunger">Predator forbearance</label>
+              <output id="predatorHungerVal" for="predatorHunger">22</output>
+            </div>
+            <div class="param-track">
+              <input id="predatorHunger" type="range" min="8" max="45" step="1" value="22" />
+            </div>
+            <p class="param-note">ticks a predator endures without a meal</p>
           </div>
         </section>
 
         <section class="controls">
-          <button id="toggleRun" type="button">Pause</button>
-          <button id="reset" type="button">Reset</button>
+          <button id="toggleRun" type="button" class="btn btn-primary">
+            <svg class="btn-ic" width="10" height="11" viewBox="0 0 10 11" aria-hidden="true">
+              <rect x="0" y="0" width="3" height="11" fill="currentColor" />
+              <rect x="7" y="0" width="3" height="11" fill="currentColor" />
+            </svg>
+            <span class="btn-label">Pause</span>
+          </button>
+          <button id="reset" type="button" class="btn">
+            <svg
+              class="btn-ic"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.3"
+              aria-hidden="true"
+            >
+              <path d="M10 3.2A4.4 4.4 0 1 0 10.6 7" />
+              <path d="M10.4 1.2v2.3H8.1" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="btn-label">Reset field</span>
+          </button>
         </section>
-
-        <label>
-          <span>Speed</span>
-          <input id="speed" type="range" min="1" max="8" step="1" value="2" />
-        </label>
-
-        <label>
-          <span>Prey birth rate</span>
-          <input id="preyBirth" type="range" min="0" max="0.08" step="0.002" value="0.025" />
-        </label>
-
-        <label>
-          <span>Predator hunger tolerance</span>
-          <input id="predatorHunger" type="range" min="8" max="45" step="1" value="22" />
-        </label>
       </aside>
     </main>
     <script type="module" src="/src/main.ts"></script>
