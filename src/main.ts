@@ -27,7 +27,7 @@ const world = new World({
 });
 
 let running = true;
-let predatorChartVisible = false;
+let populationChartVisible = false;
 let preyHistory: ChartPoint[] = [];
 let predatorHistory: ChartPoint[] = [];
 let lastRecordedTime = -1;
@@ -53,7 +53,7 @@ function tick(): void {
   const stats = world.stats;
   recordPopulationHistory(stats.elapsed, stats.preyCount, stats.predatorCount);
   ui.updateStats(stats);
-  renderer.render(world.animals, world.grass, predatorChartVisible ? getPopulationHistory() : null);
+  renderer.render(world.animals, world.grass, populationChartVisible ? getPopulationHistory() : null);
 }
 
 function recordPopulationHistory(time: number, preyCount: number, predatorCount: number): void {
@@ -84,9 +84,9 @@ ui.onReset(() => {
   lastRecordedTime = -1;
 });
 
-ui.onTogglePredatorChart(() => {
-  predatorChartVisible = !predatorChartVisible;
-  ui.setPredatorChartVisible(predatorChartVisible);
+ui.onTogglePopulationChart(() => {
+  populationChartVisible = !populationChartVisible;
+  ui.setPopulationChartVisible(populationChartVisible);
 });
 
 window.addEventListener("resize", resize);
@@ -94,5 +94,5 @@ window.addEventListener("resize", resize);
 resize();
 world.reset();
 ui.setRunning(running);
-ui.setPredatorChartVisible(predatorChartVisible);
+ui.setPopulationChartVisible(populationChartVisible);
 requestAnimationFrame(tick);

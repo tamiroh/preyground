@@ -15,10 +15,7 @@
     <main id="app">
       <canvas id="world" aria-label="predator prey simulation"></canvas>
       <aside class="log" aria-label="observation log">
-        <header class="log-head">
-          <span class="log-title">Observation Log</span>
-          <span class="log-clock">t&nbsp;<strong id="time">0</strong></span>
-        </header>
+        <div class="log-clock">t&nbsp;<strong id="time">0</strong></div>
 
         <section class="block">
           <h2 class="block-label">Census</h2>
@@ -37,24 +34,15 @@
               <dd class="val val-prey" id="preyCount">0</dd>
             </div>
 
-            <div
-              class="row plot"
-              id="predatorStat"
-              role="button"
-              tabindex="0"
-              aria-pressed="false"
-            >
-              <div class="plot-main">
-                <span class="row-ic" aria-hidden="true">
-                  <svg width="13" height="13" viewBox="-9 -9 18 18">
-                    <path d="M8 0L-6 5 -2.6 0 -6 -5Z" fill="#ef9d63" />
-                  </svg>
-                </span>
-                <dt>Predators</dt>
-                <span class="leader"></span>
-                <dd class="val val-pred" id="predatorCount">0</dd>
-              </div>
-              <div class="plot-cap">plot population</div>
+            <div class="row">
+              <span class="row-ic" aria-hidden="true">
+                <svg width="13" height="13" viewBox="-9 -9 18 18">
+                  <path d="M8 0L-6 5 -2.6 0 -6 -5Z" fill="#ef9d63" />
+                </svg>
+              </span>
+              <dt>Predators</dt>
+              <span class="leader"></span>
+              <dd class="val val-pred" id="predatorCount">0</dd>
             </div>
 
             <div class="row">
@@ -64,6 +52,13 @@
               <dd class="val" id="killedPreyCount">0</dd>
             </div>
           </dl>
+
+          <button id="plotToggle" type="button" class="plot-toggle" aria-pressed="false">
+            <svg class="plot-toggle-caret" width="7" height="9" viewBox="0 0 7 9" aria-hidden="true">
+              <path d="M0 0l7 4.5L0 9z" fill="currentColor" />
+            </svg>
+            <span id="plotToggleLabel">plot population</span>
+          </button>
         </section>
 
         <section class="block">
@@ -77,7 +72,6 @@
             <div class="param-track">
               <input id="speed" type="range" min="1" max="8" step="1" value="2" />
             </div>
-            <p class="param-note">simulation steps per rendered frame</p>
           </div>
 
           <div class="param">
@@ -88,7 +82,6 @@
             <div class="param-track">
               <input id="preyBirth" type="range" min="0" max="0.08" step="0.002" value="0.025" />
             </div>
-            <p class="param-note">birth probability per prey each tick</p>
           </div>
 
           <div class="param">
@@ -99,7 +92,6 @@
             <div class="param-track">
               <input id="predatorHunger" type="range" min="8" max="45" step="1" value="22" />
             </div>
-            <p class="param-note">ticks a predator endures without a meal</p>
           </div>
         </section>
 

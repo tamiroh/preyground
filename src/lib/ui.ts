@@ -15,8 +15,8 @@ type UiElements = {
   time: HTMLElement | null;
   preyCount: HTMLElement | null;
   predatorCount: HTMLElement | null;
-  predatorStat: HTMLElement | null;
-  plotCap: HTMLElement | null;
+  plotToggle: HTMLButtonElement | null;
+  plotToggleLabel: HTMLElement | null;
   killedPreyCount: HTMLElement | null;
   toggleRun: HTMLButtonElement | null;
   toggleRunLabel: HTMLElement | null;
@@ -34,8 +34,8 @@ export class SimulationUi {
     time: document.querySelector<HTMLElement>("#time"),
     preyCount: document.querySelector<HTMLElement>("#preyCount"),
     predatorCount: document.querySelector<HTMLElement>("#predatorCount"),
-    predatorStat: document.querySelector<HTMLElement>("#predatorStat"),
-    plotCap: document.querySelector<HTMLElement>("#predatorStat .plot-cap"),
+    plotToggle: document.querySelector<HTMLButtonElement>("#plotToggle"),
+    plotToggleLabel: document.querySelector<HTMLElement>("#plotToggleLabel"),
     killedPreyCount: document.querySelector<HTMLElement>("#killedPreyCount"),
     toggleRun: document.querySelector<HTMLButtonElement>("#toggleRun"),
     toggleRunLabel: document.querySelector<HTMLElement>("#toggleRun .btn-label"),
@@ -86,21 +86,15 @@ export class SimulationUi {
     this.elements.reset?.addEventListener("click", handler);
   }
 
-  public onTogglePredatorChart(handler: () => void): void {
-    this.elements.predatorStat?.addEventListener("click", handler);
-    this.elements.predatorStat?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        handler();
-      }
-    });
+  public onTogglePopulationChart(handler: () => void): void {
+    this.elements.plotToggle?.addEventListener("click", handler);
   }
 
-  public setPredatorChartVisible(visible: boolean): void {
-    this.elements.predatorStat?.classList.toggle("is-open", visible);
-    this.elements.predatorStat?.setAttribute("aria-pressed", String(visible));
-    if (this.elements.plotCap) {
-      this.elements.plotCap.textContent = visible ? "hide population plot" : "plot population";
+  public setPopulationChartVisible(visible: boolean): void {
+    this.elements.plotToggle?.classList.toggle("is-active", visible);
+    this.elements.plotToggle?.setAttribute("aria-pressed", String(visible));
+    if (this.elements.plotToggleLabel) {
+      this.elements.plotToggleLabel.textContent = visible ? "hide population plot" : "plot population";
     }
   }
 
