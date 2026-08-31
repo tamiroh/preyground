@@ -1,10 +1,11 @@
 :root {
-  --bg: #0c0d10;
-  --panel: #15171d;
+  --bg: #0c0c0c;
+  --panel: #161617;
   --line: rgb(234 229 219 / 0.1);
   --line-2: rgb(234 229 219 / 0.17);
   --text: #e9e4da;
   --dim: #8f8d87;
+  --track: rgb(234 229 219 / 0.5);
   --prey: #74e0c0;
   --pred: #ef9d63;
 
@@ -141,19 +142,20 @@ input {
   padding: 0;
   background: none;
   border: none;
-  color: var(--pred);
+  color: var(--dim);
   font-family: var(--ui);
   font-size: 10px;
   letter-spacing: 0.02em;
   cursor: pointer;
 }
 
-.plot-toggle:hover {
-  color: #f2b184;
+.plot-toggle:hover,
+.plot-toggle.is-active {
+  color: var(--text);
 }
 
 .plot-toggle:focus-visible {
-  outline: 1px solid var(--pred);
+  outline: 1px solid var(--text);
   outline-offset: 3px;
 }
 
@@ -221,7 +223,7 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 1px;
-  background: linear-gradient(to right, var(--prey) var(--fill, 20%), var(--line-2) var(--fill, 20%));
+  background: linear-gradient(to right, var(--track) var(--fill, 20%), var(--line-2) var(--fill, 20%));
 }
 
 input[type="range"]::-moz-range-track {
@@ -231,7 +233,7 @@ input[type="range"]::-moz-range-track {
 
 input[type="range"]::-moz-range-progress {
   height: 1px;
-  background: var(--prey);
+  background: var(--track);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -242,7 +244,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: -4px;
   border: none;
   border-radius: 50%;
-  background: var(--prey);
+  background: var(--text);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -250,15 +252,15 @@ input[type="range"]::-moz-range-thumb {
   height: 9px;
   border: none;
   border-radius: 50%;
-  background: var(--prey);
+  background: var(--text);
 }
 
 input[type="range"]:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--prey);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--text);
 }
 
 input[type="range"]:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--prey);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--text);
 }
 
 .controls {
@@ -294,7 +296,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--prey);
+  outline: 2px solid var(--text);
   outline-offset: 2px;
 }
 
@@ -303,14 +305,14 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 .btn-primary {
-  color: var(--bg);
-  background: var(--prey);
-  border-color: var(--prey);
+  color: var(--text);
+  background: rgb(234 229 219 / 0.13);
+  border-color: var(--line-2);
 }
 
 .btn-primary:hover {
-  background: #86e6c9;
-  border-color: #86e6c9;
+  background: rgb(234 229 219 / 0.2);
+  border-color: var(--dim);
 }
 
 @media (max-width: 720px) {

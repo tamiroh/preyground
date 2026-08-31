@@ -59,7 +59,7 @@ export class CanvasRenderer {
   }
 
   private drawGrasses(grasses: readonly Readonly<Grass>[]): void {
-    this.context.strokeStyle = "rgb(140 190 160 / 0.28)";
+    this.context.strokeStyle = "rgb(234 229 219 / 0.13)";
     this.context.lineWidth = 1;
     this.context.beginPath();
     for (const grass of grasses) {
@@ -84,9 +84,9 @@ export class CanvasRenderer {
       centerY,
       Math.max(width, height) * 0.8,
     );
-    vignette.addColorStop(0, "#191c26");
-    vignette.addColorStop(0.5, "#101218");
-    vignette.addColorStop(1, "#090a0d");
+    vignette.addColorStop(0, "#1b1b1c");
+    vignette.addColorStop(0.5, "#121212");
+    vignette.addColorStop(1, "#090909");
     this.context.fillStyle = vignette;
     this.context.fillRect(0, 0, width, height);
 
@@ -208,7 +208,7 @@ export class CanvasRenderer {
     const plotHeight = plotBottom - plotTop;
 
     this.context.save();
-    this.context.fillStyle = "#15171d";
+    this.context.fillStyle = "#161617";
     this.context.strokeStyle = "rgb(234 229 219 / 0.17)";
     this.context.lineWidth = 1;
     this.context.beginPath();
