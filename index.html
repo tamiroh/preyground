@@ -15,10 +15,16 @@
     <main id="app">
       <canvas id="world" aria-label="predator prey simulation"></canvas>
       <aside class="log" aria-label="observation log">
-        <div class="log-clock">t&nbsp;<strong id="time">0</strong></div>
-
         <section class="block">
-          <h2 class="block-label">Census</h2>
+          <div class="block-head">
+            <h2 class="block-label">Census</h2>
+            <button id="plotToggle" type="button" class="plot-toggle" aria-pressed="false">
+              <svg class="plot-toggle-caret" width="7" height="9" viewBox="0 0 7 9" aria-hidden="true">
+                <path d="M0 0l7 4.5L0 9z" fill="currentColor" />
+              </svg>
+              <span id="plotToggleLabel">plot population</span>
+            </button>
+          </div>
           <dl class="census">
             <div class="row">
               <span class="row-ic" aria-hidden="true">
@@ -52,13 +58,6 @@
               <dd class="val" id="killedPreyCount">0</dd>
             </div>
           </dl>
-
-          <button id="plotToggle" type="button" class="plot-toggle" aria-pressed="false">
-            <svg class="plot-toggle-caret" width="7" height="9" viewBox="0 0 7 9" aria-hidden="true">
-              <path d="M0 0l7 4.5L0 9z" fill="currentColor" />
-            </svg>
-            <span id="plotToggleLabel">plot population</span>
-          </button>
         </section>
 
         <section class="block">

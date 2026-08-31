@@ -200,7 +200,7 @@ export class CanvasRenderer {
     const chartHeight = 168;
     const left = 18;
     const top = Math.max(18, this.height - chartHeight - 18);
-    const rightGutter = 96;
+    const rightGutter = 40;
     const plotLeft = left + 18;
     const plotWidth = chartWidth - 18 - rightGutter;
     const plotTop = top + 24;
@@ -266,8 +266,8 @@ export class CanvasRenderer {
     this.context.font = '10px "IBM Plex Mono", ui-monospace, monospace';
     this.context.textAlign = "right";
     this.context.textBaseline = "middle";
-    this.drawChartEndLabel(`prey ${latestPrey.value}`, "#6fd8ba", lineEndX, preyEndY, labelRight);
-    this.drawChartEndLabel(`predators ${latestPredators.value}`, "#e58d54", lineEndX, predatorEndY, labelRight);
+    this.drawChartEndLabel(String(latestPrey.value), "#6fd8ba", lineEndX, preyEndY, labelRight);
+    this.drawChartEndLabel(String(latestPredators.value), "#e58d54", lineEndX, predatorEndY, labelRight);
     this.context.textAlign = "left";
     this.context.textBaseline = "alphabetic";
     this.context.restore();

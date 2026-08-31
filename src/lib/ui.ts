@@ -12,7 +12,6 @@ type WorldRuleParamsView = {
 };
 
 type UiElements = {
-  time: HTMLElement | null;
   preyCount: HTMLElement | null;
   predatorCount: HTMLElement | null;
   plotToggle: HTMLButtonElement | null;
@@ -31,7 +30,6 @@ type UiElements = {
 
 export class SimulationUi {
   private readonly elements: UiElements = {
-    time: document.querySelector<HTMLElement>("#time"),
     preyCount: document.querySelector<HTMLElement>("#preyCount"),
     predatorCount: document.querySelector<HTMLElement>("#predatorCount"),
     plotToggle: document.querySelector<HTMLButtonElement>("#plotToggle"),
@@ -72,7 +70,6 @@ export class SimulationUi {
   }
 
   public updateStats(stats: WorldStatsView): void {
-    if (this.elements.time) this.elements.time.textContent = stats.elapsed.toFixed(0);
     if (this.elements.preyCount) this.elements.preyCount.textContent = String(stats.preyCount);
     if (this.elements.predatorCount) this.elements.predatorCount.textContent = String(stats.predatorCount);
     if (this.elements.killedPreyCount) this.elements.killedPreyCount.textContent = String(stats.killedPreyCount);
