@@ -5,13 +5,11 @@
   --line-2: rgb(234 229 219 / 0.17);
   --text: #e9e4da;
   --dim: #8f8d87;
-  --faint: #5f5d59;
   --prey: #74e0c0;
   --pred: #ef9d63;
 
   --ui: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --display: "Newsreader", Georgia, "Times New Roman", serif;
 
   color: var(--text);
   background: var(--bg);
@@ -287,6 +285,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   color: var(--text);
   background: transparent;
   border: 1px solid var(--line-2);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 10px;
   font-weight: 500;

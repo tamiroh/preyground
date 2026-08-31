@@ -197,30 +197,29 @@ export class CanvasRenderer {
 
   private drawPopulationChart(history: PopulationHistory): void {
     const chartWidth = Math.max(280, this.width - 36);
-    const chartHeight = 190;
+    const chartHeight = 168;
     const left = 18;
     const top = Math.max(18, this.height - chartHeight - 18);
-    const padding = 34;
-    const plotWidth = chartWidth - padding * 2;
-    const plotHeight = chartHeight - padding * 1.7;
+    const rightGutter = 96;
+    const plotLeft = left + 18;
+    const plotWidth = chartWidth - 18 - rightGutter;
+    const plotTop = top + 24;
+    const plotBottom = top + chartHeight - 20;
+    const plotHeight = plotBottom - plotTop;
 
     this.context.save();
-    this.context.fillStyle = "rgb(18 20 26 / 0.96)";
+    this.context.fillStyle = "#15171d";
     this.context.strokeStyle = "rgb(234 229 219 / 0.17)";
     this.context.lineWidth = 1;
     this.context.beginPath();
-    this.context.roundRect(left, top, chartWidth, chartHeight, 2);
+    this.context.roundRect(left, top, chartWidth, chartHeight, 13);
     this.context.fill();
     this.context.stroke();
-
-    this.context.fillStyle = "#e9e4da";
-    this.context.font = 'italic 500 14px "Newsreader", Georgia, serif';
-    this.context.fillText("Fig. 1 — Population over time", left + 16, top + 25);
 
     if (history.prey.length < 2 || history.predators.length < 2) {
       this.context.fillStyle = "rgb(234 229 219 / 0.3)";
       this.context.font = '12px "IBM Plex Mono", ui-monospace, monospace';
-      this.context.fillText("collecting data…", left + 16, top + 50);
+      this.context.fillText("collecting data…", plotLeft, plotTop + 8);
       this.context.restore();
       return;
     }
@@ -237,9 +236,6 @@ export class CanvasRenderer {
       ...history.prey.map((point) => point.value),
       ...history.predators.map((point) => point.value),
     );
-    const plotLeft = left + padding;
-    const plotTop = top + 48;
-    const plotBottom = plotTop + plotHeight;
 
     this.context.strokeStyle = "rgb(234 229 219 / 0.2)";
     this.context.beginPath();
@@ -248,6 +244,10 @@ export class CanvasRenderer {
     this.context.lineTo(plotLeft + plotWidth, plotBottom);
     this.context.stroke();
 
+    this.context.fillStyle = "rgb(234 229 219 / 0.32)";
+    this.context.font = '10px "IBM Plex Mono", ui-monospace, monospace';
+    this.context.fillText(`max ${maxValue}`, plotLeft, plotTop - 8);
+
     this.drawChartLine(sampledPreyHistory, "#6fd8ba", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
     this.context.setLineDash([4, 3]);
     this.drawChartLine(sampledPredatorHistory, "#e58d54", minTime, maxTime, maxValue, plotLeft, plotBottom, plotWidth, plotHeight);
@@ -255,14 +255,40 @@ export class CanvasRenderer {
 
     const latestPrey = history.prey[history.prey.length - 1];
     const latestPredators = history.predators[history.predators.length - 1];
-    this.context.font = '11px "IBM Plex Mono", ui-monospace, monospace';
-    this.context.fillStyle = "#6fd8ba";
-    this.context.fillText(`prey ${latestPrey.value}`, plotLeft, plotBottom + 22);
-    this.context.fillStyle = "#e58d54";
-    this.context.fillText(`predators ${latestPredators.value}`, plotLeft + 74, plotBottom + 22);
-    this.context.fillStyle = "rgb(234 229 219 / 0.35)";
-    this.context.fillText(`max ${maxValue}`, plotLeft + plotWidth - 52, plotTop - 8);
+    const preyEndY = this.clampChartY(latestPrey.value, maxValue, plotTop, plotBottom, plotHeight);
+    let predatorEndY = this.clampChartY(latestPredators.value, maxValue, plotTop, plotBottom, plotHeight);
+    if (Math.abs(predatorEndY - preyEndY) < 13) {
+      predatorEndY = preyEndY + (predatorEndY < preyEndY ? -13 : 13);
+    }
+
+    const lineEndX = plotLeft + plotWidth;
+    const labelRight = left + chartWidth - 12;
+    this.context.font = '10px "IBM Plex Mono", ui-monospace, monospace';
+    this.context.textAlign = "right";
+    this.context.textBaseline = "middle";
+    this.drawChartEndLabel(`prey ${latestPrey.value}`, "#6fd8ba", lineEndX, preyEndY, labelRight);
+    this.drawChartEndLabel(`predators ${latestPredators.value}`, "#e58d54", lineEndX, predatorEndY, labelRight);
+    this.context.textAlign = "left";
+    this.context.textBaseline = "alphabetic";
     this.context.restore();
+  }
+
+  private clampChartY(
+    value: number,
+    maxValue: number,
+    plotTop: number,
+    plotBottom: number,
+    plotHeight: number,
+  ): number {
+    return Math.min(plotBottom, Math.max(plotTop, plotBottom - (value / maxValue) * plotHeight));
+  }
+
+  private drawChartEndLabel(text: string, color: string, dotX: number, dotY: number, labelRight: number): void {
+    this.context.fillStyle = color;
+    this.context.beginPath();
+    this.context.arc(dotX, dotY, 2.4, 0, Math.PI * 2);
+    this.context.fill();
+    this.context.fillText(text, labelRight, dotY);
   }
 
   private drawChartLine(
