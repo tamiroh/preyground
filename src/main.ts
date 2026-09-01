@@ -4,22 +4,32 @@ import {
   type PopulationHistory,
 } from "./lib/renderer.ts";
 import "./style.css";
+import type { Size } from "./lib/math.ts";
 import { SimulationUi } from "./lib/ui.ts";
 import { World } from "./lib/world.ts";
 
 const FIXED_DT = 1 / 60;
 
-const appElement = document.querySelector<HTMLElement>("#app");
-if (!appElement) {
-  throw new Error("App element #app was not found.");
-}
+const appElement = requireElement<HTMLElement>("#app");
 
 const renderer = new CanvasRenderer(appElement);
 const ui = new SimulationUi(appElement);
-const world = new World({
-  width: window.innerWidth,
-  height: window.innerHeight,
-});
+const world = new World(measure());
+
+function measure(): Size {
+  return {
+    width: appElement.clientWidth,
+    height: appElement.clientHeight,
+  };
+}
+
+function requireElement<E extends Element>(selector: string): E {
+  const element = document.querySelector<E>(selector);
+  if (!element) {
+    throw new Error(`Element ${selector} was not found.`);
+  }
+  return element;
+}
 
 let running = true;
 let populationChartVisible = false;
@@ -28,10 +38,7 @@ let predatorHistory: ChartPoint[] = [];
 let lastRecordedTime = -1;
 
 function resize(): void {
-  const worldSize = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-  };
+  const worldSize = measure();
   renderer.resize(worldSize);
   world.resize(worldSize);
 }

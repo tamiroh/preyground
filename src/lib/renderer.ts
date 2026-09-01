@@ -30,7 +30,6 @@ export class CanvasRenderer {
 
   public constructor(mount: HTMLElement) {
     this.canvas = document.createElement("canvas");
-    this.canvas.id = "world";
     this.canvas.setAttribute("aria-label", "predator prey simulation");
     const context = this.canvas.getContext("2d");
     if (!context) {
