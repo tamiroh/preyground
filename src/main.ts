@@ -9,6 +9,11 @@ import { World } from "./lib/world.ts";
 
 const FIXED_DT = 1 / 60;
 
+const appElement = document.querySelector<HTMLElement>("#app");
+if (!appElement) {
+  throw new Error("App element #app was not found.");
+}
+
 const canvasElement = document.querySelector<HTMLCanvasElement>("#world");
 if (!canvasElement) {
   throw new Error("Canvas element #world was not found.");
@@ -19,7 +24,7 @@ if (!context) {
   throw new Error("2D canvas context was not available.");
 }
 
-const ui = new SimulationUi();
+const ui = new SimulationUi(appElement);
 const renderer = new CanvasRenderer(canvasElement, context);
 const world = new World({
   width: window.innerWidth,
