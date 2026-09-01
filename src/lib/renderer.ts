@@ -25,11 +25,20 @@ export type PopulationHistory = {
 export class CanvasRenderer {
   private width = 0;
   private height = 0;
+  private readonly canvas: HTMLCanvasElement;
+  private readonly context: CanvasRenderingContext2D;
 
-  public constructor(
-    private readonly canvas: HTMLCanvasElement,
-    private readonly context: CanvasRenderingContext2D,
-  ) {}
+  public constructor(mount: HTMLElement) {
+    this.canvas = document.createElement("canvas");
+    this.canvas.id = "world";
+    this.canvas.setAttribute("aria-label", "predator prey simulation");
+    const context = this.canvas.getContext("2d");
+    if (!context) {
+      throw new Error("2D canvas context was not available.");
+    }
+    this.context = context;
+    mount.append(this.canvas);
+  }
 
   public resize(worldSize: Size): void {
     const pixelRatio = Math.min(window.devicePixelRatio, 2);

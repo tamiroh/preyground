@@ -14,18 +14,8 @@ if (!appElement) {
   throw new Error("App element #app was not found.");
 }
 
-const canvasElement = document.querySelector<HTMLCanvasElement>("#world");
-if (!canvasElement) {
-  throw new Error("Canvas element #world was not found.");
-}
-
-const context = canvasElement.getContext("2d");
-if (!context) {
-  throw new Error("2D canvas context was not available.");
-}
-
+const renderer = new CanvasRenderer(appElement);
 const ui = new SimulationUi(appElement);
-const renderer = new CanvasRenderer(canvasElement, context);
 const world = new World({
   width: window.innerWidth,
   height: window.innerHeight,
